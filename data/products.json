@@ -1,0 +1,20 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Desert Vase Collection",
+      "price": 89.99,
+      "description": "Handcrafted ceramic vases inspired by desert rock formations",
+      "image": "images/products/product1.jpg",
+      "category": "home-decor"
+    },
+    {
+      "id": 2,
+      "name": "Woven Wall Hanging",
+      "price": 129.99,
+      "description": "Natural fiber wall art with geometric desert patterns",
+      "image": "images/products/product2.jpg",
+      "category": "wall-art"
+    }
+  ]
+}

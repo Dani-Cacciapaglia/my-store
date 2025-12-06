@@ -1,45 +1,32 @@
-// Sample product data
-const products = [
-    {
-        id: 1,
-        name: "Product 1",
-        price: 49.99,
-        description: "High quality product description",
-        image: "images/products/product1.jpg"
-    },
-    {
-        id: 2,
-        name: "Product 2",
-        price: 59.99,
-        description: "Another great product",
-        image: "images/products/product2.jpg"
-    },
-    // Add more products...
-];
+// Smooth scrolling for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
 
-// Load products into grid
-function loadProducts() {
-    const productGrid = document.getElementById('product-grid');
+// Header scroll effect
+let lastScroll = 0;
+const header = document.querySelector('.header-transparent');
+
+window.addEventListener('scroll', () => {
+    const currentScroll = window.pageYOffset;
     
-    if (!productGrid) return;
+    if (currentScroll > 100) {
+        header.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.1)';
+    } else {
+        header.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
+    }
     
-    productGrid.innerHTML = products.map(product => `
-        <div class="product-card" onclick="viewProduct(${product.id})">
-            <img src="${product.image}" alt="${product.name}" class="product-image">
-            <div class="product-info">
-                <h3 class="product-name">${product.name}</h3>
-                <p class="product-price">$${product.price}</p>
-                <p class="product-description">${product.description}</p>
-            </div>
-        </div>
-    `).join('');
-}
+    lastScroll = currentScroll;
+});
 
-// View individual product
-function viewProduct(id) {
-    // Could navigate to product page or open modal
-    window.location.href = `product.html?id=${id}`;
-}
-
-// Load products when page loads
-document.addEventListener('DOMContentLoaded', loadProducts);
+// Mobile menu toggle (add if needed)
+console.log('Desert Store - Website loaded successfully');
