@@ -1,0 +1,324 @@
+/* ============================================
+   AVAILABILITY CALENDAR STYLES
+   ============================================ */
+
+.availability-container {
+    max-width: 1200px;
+    margin: 120px auto 0;
+    padding: 0 2rem;
+}
+
+.availability-widget {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+/* Header */
+.availability-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.header-text h3 {
+    font-size: 1.8rem;
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+    color: #222;
+}
+
+.header-text p {
+    font-size: 1rem;
+    color: #666;
+}
+
+.btn-primary {
+    padding: 0.8rem 2rem;
+    background: #333;
+    color: #fff;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: background 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary:hover {
+    background: #555;
+}
+
+/* Calendar Wrapper */
+.calendar-wrapper {
+    padding: 2rem;
+}
+
+/* Calendar Navigation */
+.calendar-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.nav-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: background 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-btn:hover:not(:disabled) {
+    background: #f0f0f0;
+}
+
+.nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.nav-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+.calendar-months {
+    display: flex;
+    gap: 3rem;
+    flex: 1;
+    justify-content: center;
+}
+
+.month-label {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333;
+    min-width: 150px;
+    text-align: center;
+}
+
+/* Calendar Grids */
+.calendar-grids {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.calendar-grid {
+    overflow-x: auto;
+}
+
+.calendar-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.calendar-table thead th {
+    padding: 0.8rem 0.5rem;
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #666;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.calendar-table tbody td {
+    padding: 0;
+    text-align: center;
+    position: relative;
+}
+
+/* Calendar Day Cell */
+.calendar-day {
+    width: 100%;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: #fff;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #333;
+    position: relative;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+    margin: 2px;
+}
+
+.calendar-day:not(.disabled):not(.unavailable):hover {
+    background: #f5f5f5;
+    transform: scale(1.05);
+}
+
+/* Day States */
+.calendar-day.today {
+    font-weight: 600;
+    border: 2px solid #333;
+}
+
+.calendar-day.available {
+    background: #fff;
+}
+
+.calendar-day.unavailable {
+    background: #f0f0f0;
+    color: #999;
+    cursor: not-allowed;
+    position: relative;
+}
+
+.calendar-day.unavailable::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: #ccc;
+    transform: translateY(-50%) rotate(-45deg);
+}
+
+.calendar-day.disabled {
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+.calendar-day.selected {
+    background: #333;
+    color: #fff;
+    font-weight: 600;
+}
+
+.calendar-day.in-range {
+    background: #e8e8e8;
+}
+
+.calendar-day.outside-month {
+    color: #ccc;
+}
+
+/* Legend */
+.calendar-legend {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.legend-box {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.legend-box.available {
+    background: #fff;
+}
+
+.legend-box.unavailable {
+    background: #f0f0f0;
+    position: relative;
+}
+
+.legend-box.unavailable::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: #999;
+    transform: translateY(-50%) rotate(-45deg);
+}
+
+.legend-box.selected {
+    background: #333;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 992px) {
+    .calendar-grids {
+        gap: 1.5rem;
+    }
+    
+    .calendar-months {
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .availability-container {
+        margin-top: 100px;
+        padding: 0 1rem;
+    }
+    
+    .availability-header {
+        flex-direction: column;
+        gap: 1.5rem;
+        text-align: center;
+    }
+    
+    .calendar-grids {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .calendar-months {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .calendar-wrapper {
+        padding: 1rem;
+    }
+    
+    .calendar-legend {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.8rem;
+    }
+    
+    .calendar-day {
+        height: 40px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .calendar-table thead th {
+        padding: 0.5rem 0.2rem;
+        font-size: 0.75rem;
+    }
+    
+    .calendar-day {
+        height: 35px;
+        font-size: 0.85rem;
+    }
+    
+    .month-label {
+        font-size: 0.9rem;
+    }
+}
