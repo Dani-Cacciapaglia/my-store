@@ -1,4 +1,4 @@
-// Contact form handling
+// Contact form handling with email functionality
 document.addEventListener('DOMContentLoaded', function() {
     const contactForm = document.getElementById('contact-form');
     const formStatus = document.getElementById('form-status');
@@ -15,8 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 message: document.getElementById('message').value
             };
 
-            // Simulate form submission
-            // In production, you would send this to a backend or service like FormSpree
+            // Send email using FormSubmit.co
             submitForm(formData);
         });
     }
@@ -28,13 +27,31 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.textContent = 'Sending...';
         submitBtn.disabled = true;
 
-        // Simulate API call with setTimeout
-        setTimeout(() => {
-            // Success simulation
+        // Prepare FormData for FormSubmit
+        const formSubmitData = new FormData();
+        formSubmitData.append('name', data.name);
+        formSubmitData.append('email', data.email);
+        formSubmitData.append('subject', data.subject || 'Contact Form Submission');
+        formSubmitData.append('message', data.message);
+
+        // Send to FormSubmit.co (sends email to your address)
+        fetch('https://formsubmit.co/cacciapagliadaniele0@gmail.com', {
+            method: 'POST',
+            body: formSubmitData,
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Network response was not ok');
+        })
+        .then(result => {
+            // Success
             formStatus.className = 'form-status success';
             formStatus.textContent = 'Thank you for your message! We\'ll get back to you soon.';
-            
-            // Reset form
             contactForm.reset();
             
             // Reset button
@@ -45,36 +62,21 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => {
                 formStatus.style.display = 'none';
             }, 5000);
-
-            // Log form data (for development)
-            console.log('Form submitted:', data);
-
-        }, 1500);
-
-        /* 
-        PRODUCTION VERSION - Uncomment and configure when ready to use FormSpree:
-        
-        fetch('https://formspree.io/f/YOUR_FORM_ID', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(result => {
-            formStatus.className = 'form-status success';
-            formStatus.textContent = 'Thank you! We\'ll get back to you soon.';
-            contactForm.reset();
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
         })
         .catch(error => {
+            // Error
+            console.error('Error:', error);
             formStatus.className = 'form-status error';
-            formStatus.textContent = 'Oops! Something went wrong. Please try again.';
+            formStatus.textContent = 'Oops! Something went wrong. Please try again or email us directly at contact@desertstore.com';
+            
+            // Reset button
             submitBtn.textContent = originalText;
             submitBtn.disabled = false;
+
+            // Hide error message after 7 seconds
+            setTimeout(() => {
+                formStatus.style.display = 'none';
+            }, 7000);
         });
-        */
     }
 });

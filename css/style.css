@@ -665,3 +665,262 @@ img {
         font-size: 2rem;
     }
 }
+/* ============================================
+   ABOUT PAGE STYLES
+   ============================================ */
+.about-hero {
+    position: relative;
+}
+
+.hero-overlay-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #fff;
+    z-index: 10;
+}
+
+.hero-overlay-text h1 {
+    font-size: 4rem;
+    font-weight: 300;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.values-section {
+    background: #f9f9f9;
+    padding: 4rem 2rem;
+}
+
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2.5rem;
+}
+
+.value-card {
+    background: #fff;
+    padding: 2.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.value-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.value-card h3 {
+    font-size: 1.4rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    color: #222;
+}
+
+.value-card p {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #666;
+}
+
+/* ============================================
+   CONTACT PAGE STYLES
+   ============================================ */
+.contact-header {
+    margin-top: 120px;
+    text-align: center;
+    padding: 3rem 2rem 2rem;
+}
+
+.contact-header h1 {
+    font-size: 3rem;
+    font-weight: 300;
+    margin-bottom: 0.5rem;
+    letter-spacing: 1px;
+}
+
+.contact-header p {
+    font-size: 1.1rem;
+    color: #666;
+}
+
+.contact-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+}
+
+/* Contact Form */
+.contact-form-section h2,
+.contact-info-section h2 {
+    font-size: 1.8rem;
+    font-weight: 400;
+    margin-bottom: 2rem;
+    color: #222;
+}
+
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #333;
+    letter-spacing: 0.3px;
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 0.9rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #999;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.submit-btn {
+    padding: 1rem 2rem;
+    background: #333;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    letter-spacing: 0.5px;
+}
+
+.submit-btn:hover {
+    background: #555;
+}
+
+.form-status {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 4px;
+    display: none;
+    text-align: center;
+}
+
+.form-status.success {
+    display: block;
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.form-status.error {
+    display: block;
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Contact Info Cards */
+.contact-info-card {
+    background: #f9f9f9;
+    padding: 1.8rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.contact-info-card h3 {
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 0.8rem;
+    color: #222;
+}
+
+.contact-info-card p {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #555;
+}
+
+.contact-info-card a {
+    color: #333;
+    transition: color 0.3s ease;
+}
+
+.contact-info-card a:hover {
+    color: #666;
+}
+
+.info-description {
+    font-size: 0.9rem !important;
+    color: #999 !important;
+    margin-top: 0.5rem;
+}
+
+.social-links-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.social-links-vertical a {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: #333;
+    transition: color 0.3s ease;
+}
+
+.social-links-vertical a:hover {
+    color: #666;
+}
+
+.social-icon-small {
+    width: 20px;
+    height: 20px;
+}
+
+/* ============================================
+   RESPONSIVE - ABOUT & CONTACT
+   ============================================ */
+@media (max-width: 768px) {
+    .hero-overlay-text h1 {
+        font-size: 2.5rem;
+    }
+    
+    .values-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .contact-wrapper {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+    }
+    
+    .contact-header h1 {
+        font-size: 2rem;
+    }
+}
