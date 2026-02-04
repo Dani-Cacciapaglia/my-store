@@ -7,17 +7,20 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <!-- Header with transparent overlay -->
+    <!-- Header with hamburger menu -->
     <header class="header-transparent">
         <div class="header-content">
-            <a href="index.html" class="logo">
-                <img src="images/logo.png" alt="The Desert Store" class="logo-image">
-            </a>
-            <nav class="main-nav">
+            <a href="index.html" class="logo">THE DESERT STORE</a>
+            <button class="menu-toggle" aria-label="Toggle menu" id="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <nav class="main-nav" id="main-nav">
                 <ul class="nav-links">
                     <li><a href="index.html" class="active">Home</a></li>
-                    <li><a href="about.html">About</a></li>
                     <li><a href="products.html">Products</a></li>
+                    <li><a href="about.html">About</a></li>
                     <li><a href="availability.html">Availability</a></li>
                     <li><a href="contact.html">Contact</a></li>
                 </ul>
@@ -25,21 +28,20 @@
         </div>
     </header>
 
-    <!-- Hero Section with Background Image -->
+    <!-- Hero Section with Full-Width Image -->
     <section class="hero-section">
         <div class="hero-image-wrapper">
-            <!-- Placeholder: Replace with actual hero image -->
             <div class="placeholder-image hero-placeholder">
-                <p>Hero Image: Desert landscape at sunset</p>
+                <p>Hero Image: Desert landscape at sunset<br>2000x1333px (full-width)</p>
             </div>
         </div>
     </section>
 
-    <!-- Spacer -->
+    <!-- Large Spacer -->
     <div class="section-spacer large"></div>
 
-    <!-- Main Content Section -->
-    <div class="content-wrapper">
+    <!-- Main Content: Text + Image Side by Side -->
+    <div class="content-wrapper two-column">
         <div class="content-section">
             <div class="rich-text-content">
                 <h2>The Perfect Desert Collection</h2>
@@ -54,22 +56,20 @@
         </div>
 
         <div class="content-section">
-            <!-- Placeholder: Feature image -->
             <div class="placeholder-image content-placeholder">
                 <p>Image: Featured product showcase<br>1920x1280px</p>
             </div>
         </div>
     </div>
 
-    <!-- Another Spacer -->
+    <!-- Large Spacer -->
     <div class="section-spacer large"></div>
 
-    <!-- Two Column Section -->
+    <!-- Reversed Two Column Section (Image First) -->
     <div class="content-wrapper two-column">
         <div class="content-section">
-            <!-- Placeholder: Secondary image -->
             <div class="placeholder-image content-placeholder">
-                <p>Image: Store interior or product detail<br>1920x1080px</p>
+                <p>Image: Store interior or lifestyle shot<br>1920x1080px</p>
             </div>
         </div>
         
@@ -77,7 +77,7 @@
             <div class="rich-text-content">
                 <h2>A Place to Discover</h2>
                 <p>The Desert Store is a curated collection of unique pieces inspired by the vast beauty of desert landscapes. Each item is carefully selected for its craftsmanship, design, and connection to the natural world.</p>
-                <p>Our collection features handcrafted goods from local artisans, vintage finds, and modern designs that capture the essence of desert living. From home decor to personal accessories, every piece tells a story.</p>
+                <p>Our collection features handcrafted goods from local artisans, vintage finds, and modern designs that capture the essence of desert living. From home decor to personal accessories, every piece tells a story of the desert's timeless beauty.</p>
             </div>
         </div>
     </div>

@@ -28,5 +28,33 @@ window.addEventListener('scroll', () => {
     lastScroll = currentScroll;
 });
 
-// Mobile menu toggle (add if needed)
+// Mobile hamburger menu toggle
+const menuToggle = document.getElementById('menu-toggle');
+const mainNav = document.getElementById('main-nav');
+
+if (menuToggle && mainNav) {
+    menuToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        menuToggle.classList.toggle('active');
+        mainNav.classList.toggle('active');
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.header-content')) {
+            mainNav.classList.remove('active');
+            menuToggle.classList.remove('active');
+        }
+    });
+    
+    // Close menu when clicking a link
+    const navLinks = mainNav.querySelectorAll('a');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            mainNav.classList.remove('active');
+            menuToggle.classList.remove('active');
+        });
+    });
+}
+
 console.log('Desert Store - Website loaded successfully');
