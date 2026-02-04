@@ -44,23 +44,23 @@ const products = [
     }
 ];
 
-// Load products into the grid
+// Load products into the grid (updated for smaller cards)
 function loadProducts() {
     const productGrid = document.getElementById('products-grid');
     
     if (!productGrid) return;
     
     productGrid.innerHTML = products.map(product => `
-        <div class="product-card" onclick="viewProduct(${product.id})">
-            <div class="product-image-wrapper">
-                <div class="placeholder-image" style="height: 100%; margin: 0; border: none;">
-                    <p>Product Image<br>${product.name}<br>350x350px</p>
+        <div class="feature-card" onclick="viewProduct(${product.id})">
+            <div class="card-image">
+                <div class="placeholder-image card-placeholder">
+                    <p>Product Image<br>${product.name}<br>400x300px</p>
                 </div>
             </div>
-            <div class="product-info">
-                <h3 class="product-name">${product.name}</h3>
-                <p class="product-price">$${product.price.toFixed(2)}</p>
-                <p class="product-description">${product.description}</p>
+            <div class="card-content">
+                <h3>${product.name}</h3>
+                <p class="card-price">$${product.price.toFixed(2)}</p>
+                <p>${product.description}</p>
             </div>
         </div>
     `).join('');

@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Products - Savio lodging</title>
+    <title>Products - The Desert Store</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <!-- Header with hamburger menu -->
     <header class="header-transparent">
         <div class="header-content">
-            <a href="index.html" class="logo">Savio lodging</a>
+            <a href="index.html" class="logo">THE DESERT STORE</a>
             <button class="menu-toggle" aria-label="Toggle menu" id="menu-toggle">
                 <span></span>
                 <span></span>
@@ -18,8 +19,8 @@
             <nav class="main-nav" id="main-nav">
                 <ul class="nav-links">
                     <li><a href="index.html">Home</a></li>
-                    <li><a href="about.html">About</a></li>
                     <li><a href="products.html" class="active">Products</a></li>
+                    <li><a href="about.html">About</a></li>
                     <li><a href="availability.html">Availability</a></li>
                     <li><a href="contact.html">Contact</a></li>
                 </ul>
@@ -27,15 +28,166 @@
         </div>
     </header>
 
-    <div class="products-header">
-        <h1>Our Collection</h1>
-        <p>Handcrafted pieces inspired by the desert</p>
-    </div>
+    <!-- Full-Width Hero Banner -->
+    <section class="hero-banner">
+        <div class="hero-banner-image">
+            <div class="placeholder-image hero-banner-placeholder">
+                <p>Full-Width Hero Banner<br>Products showcase panorama<br>1920x600px</p>
+            </div>
+        </div>
+    </section>
 
-    <div class="products-grid" id="products-grid">
-        <!-- Products will be loaded here via JavaScript -->
-    </div>
+    <!-- Title and Intro Section -->
+    <section class="intro-section">
+        <div class="intro-container">
+            <h1 class="main-title">Our Collection</h1>
+            <p class="intro-paragraph">Explore our carefully curated selection of handcrafted desert-inspired pieces. From pottery to textiles, each item is made with passion and attention to detail by skilled artisans who honor traditional techniques.</p>
+        </div>
+    </section>
 
+    <!-- Key Attributes with Icons -->
+    <section class="attributes-section">
+        <div class="attributes-container">
+            <div class="attribute-item">
+                <div class="attribute-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 16v-4M12 8h.01"/>
+                    </svg>
+                </div>
+                <p>Unique Pieces</p>
+            </div>
+
+            <div class="attribute-item">
+                <div class="attribute-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                </div>
+                <p>Quality Guaranteed</p>
+            </div>
+
+            <div class="attribute-item">
+                <div class="attribute-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                </div>
+                <p>Natural Materials</p>
+            </div>
+
+            <div class="attribute-item">
+                <div class="attribute-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                    </svg>
+                </div>
+                <p>Premium Quality</p>
+            </div>
+
+            <div class="attribute-item">
+                <div class="attribute-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="9" y1="9" x2="15" y2="15"/>
+                        <line x1="15" y1="9" x2="9" y2="15"/>
+                    </svg>
+                </div>
+                <p>Artisan Crafted</p>
+            </div>
+
+            <div class="attribute-item">
+                <div class="attribute-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                </div>
+                <p>Made Locally</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Smaller Product Cards Section -->
+    <section class="featured-cards-section">
+        <div class="cards-container">
+            <h2 class="section-title">Featured Products</h2>
+            <div class="cards-grid" id="products-grid">
+                <!-- Products will be loaded here via JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 1: Materials & Craftsmanship -->
+    <section class="content-section-block">
+        <div class="content-block-container">
+            <h2 class="block-title">Materials & Craftsmanship</h2>
+            <div class="two-column-text">
+                <div class="column">
+                    <p>Every product in our collection begins with carefully selected materials sourced from sustainable suppliers. We prioritize natural fibers, locally harvested clay, and reclaimed wood that tells its own story through unique grain patterns and weathered textures.</p>
+                    <p>Our ceramics are crafted using traditional wheel-throwing and hand-building techniques. Each piece is shaped, trimmed, and refined over several days before entering the kiln. The firing process itself can take up to 24 hours, followed by careful cooling to ensure durability.</p>
+                </div>
+                <div class="column">
+                    <p>Textile pieces are created on traditional looms, with artisans spending weeks weaving intricate patterns inspired by desert landscapes. Natural dyes derived from plants and minerals create earthy tones that evolve beautifully over time, adding character with each passing year.</p>
+                    <p>We celebrate the marks of the maker's hand—subtle variations in glaze, gentle asymmetries in form, and the organic flow of woven fibers. These characteristics aren't imperfections but rather signatures of authentic handwork that make each piece irreplaceable.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 2: Product Care -->
+    <section class="content-section-block alternate">
+        <div class="content-block-container">
+            <h2 class="block-title">Product Care</h2>
+            <div class="two-column-text">
+                <div class="column">
+                    <p>Handcrafted items deserve thoughtful care to ensure they remain beautiful for generations. Our ceramics are food-safe and dishwasher-friendly, though hand washing extends their lifespan and preserves the subtle nuances of hand-applied glazes.</p>
+                    <p>For woven textiles and baskets, we recommend gentle spot cleaning with mild soap and cool water. Avoid harsh chemicals or machine washing, which can damage natural fibers. Allow items to air dry completely in a well-ventilated space away from direct sunlight.</p>
+                </div>
+                <div class="column">
+                    <p>Wood pieces benefit from occasional treatment with food-grade mineral oil to maintain their luster and prevent drying. Simply apply a thin layer, let it absorb for a few hours, then buff with a soft cloth for a beautiful, natural sheen.</p>
+                    <p>Store items in moderate temperatures and humidity levels. Extreme conditions can cause natural materials to expand or contract. With proper care, your handcrafted pieces will develop a rich patina that enhances their beauty and tells the story of their place in your home.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 3: Sustainability Practices -->
+    <section class="content-section-block">
+        <div class="content-block-container">
+            <h2 class="block-title">Sustainability Practices</h2>
+            <div class="two-column-text">
+                <div class="column">
+                    <p>Our commitment to environmental responsibility influences every aspect of production. Artisans use solar-powered kilns when possible, reducing energy consumption while maintaining the high firing temperatures needed for durable ceramics.</p>
+                    <p>Clay scraps and trimmed pieces are never wasted—they're reclaimed, rehydrated, and wedged back into fresh batches. This zero-waste approach honors both the material and the earth it comes from, ensuring nothing goes to landfill unnecessarily.</p>
+                </div>
+                <div class="column">
+                    <p>Packaging is minimal and thoughtful. We use recycled cardboard, biodegradable packing peanuts made from cornstarch, and paper tape instead of plastic. Every shipment is designed to protect your purchase while respecting the planet.</p>
+                    <p>By choosing products built to last, you're participating in sustainable consumption. Quality craftsmanship means fewer replacements, less waste, and more meaningful relationships with the objects that furnish your daily life.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 4: Custom Orders -->
+    <section class="content-section-block alternate">
+        <div class="content-block-container">
+            <h2 class="block-title">Custom Orders</h2>
+            <div class="two-column-text">
+                <div class="column">
+                    <p>Looking for something specific? Many of our artisans accept custom commissions for unique pieces tailored to your vision. Whether you need a specific size, color, or design detail, we can connect you with the right maker to bring your ideas to life.</p>
+                    <p>Custom orders typically require 4-8 weeks for completion, depending on the complexity and the artisan's current workload. Rush orders may be accommodated for an additional fee when schedules allow.</p>
+                </div>
+                <div class="column">
+                    <p>The process begins with a consultation where you share your vision, preferences, and intended use. The artisan will provide sketches or samples for approval before beginning work. Throughout production, you'll receive updates to ensure the final piece exceeds expectations.</p>
+                    <p>Custom pieces carry the same quality guarantee as our regular collection. Contact us to discuss your project, and we'll guide you through the exciting journey of creating a one-of-a-kind piece that perfectly suits your space and style.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
     <footer class="site-footer">
         <div class="footer-content">
             <div class="footer-main">

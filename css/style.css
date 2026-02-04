@@ -1038,6 +1038,294 @@ img {
 }
 
 /* ============================================
+   HOME PAGE & PRODUCTS PAGE SHARED STYLES
+   ============================================ */
+
+/* Full-Width Hero Banner */
+.hero-banner {
+    width: 100%;
+    margin-top: 70px;
+}
+
+.hero-banner-image {
+    width: 100%;
+    height: 600px;
+    overflow: hidden;
+}
+
+.hero-banner-placeholder {
+    height: 100%;
+    min-height: 600px;
+}
+
+/* Intro Section */
+.intro-section {
+    padding: 4rem 2rem;
+    background: #fff;
+}
+
+.intro-container {
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.main-title {
+    font-size: 3rem;
+    font-weight: 300;
+    letter-spacing: 1px;
+    margin-bottom: 1.5rem;
+    color: #222;
+}
+
+.intro-paragraph {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #555;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Attributes Section */
+.attributes-section {
+    background: #f9f9f9;
+    padding: 3rem 2rem;
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.attributes-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 2rem;
+}
+
+.attribute-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.8rem;
+}
+
+.attribute-icon {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+}
+
+.attribute-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.attribute-item p {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #333;
+    margin: 0;
+    letter-spacing: 0.3px;
+}
+
+/* Featured Cards Section */
+.featured-cards-section {
+    padding: 4rem 2rem;
+    background: #fff;
+}
+
+.cards-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.section-title {
+    text-align: center;
+    font-size: 2.2rem;
+    font-weight: 300;
+    margin-bottom: 3rem;
+    color: #222;
+}
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.feature-card {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.card-image {
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+}
+
+.card-placeholder {
+    height: 100%;
+    min-height: 220px;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+}
+
+.card-content {
+    padding: 1.2rem;
+}
+
+.card-content h3 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #222;
+}
+
+.card-content p {
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.card-price {
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    color: #333 !important;
+    margin: 0.5rem 0 !important;
+}
+
+/* Content Section Blocks */
+.content-section-block {
+    padding: 4rem 2rem;
+    background: #fff;
+}
+
+.content-section-block.alternate {
+    background: #f9f9f9;
+}
+
+.content-block-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.block-title {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 300;
+    margin-bottom: 3rem;
+    color: #222;
+    letter-spacing: 0.5px;
+}
+
+.two-column-text {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+}
+
+.two-column-text .column {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: #555;
+}
+
+.two-column-text .column p {
+    margin-bottom: 1.5rem;
+}
+
+.two-column-text .column p:last-child {
+    margin-bottom: 0;
+}
+
+/* ============================================
+   RESPONSIVE UPDATES FOR NEW SECTIONS
+   ============================================ */
+@media (max-width: 768px) {
+    .hero-banner-image {
+        height: 400px;
+    }
+    
+    .main-title {
+        font-size: 2rem;
+    }
+    
+    .intro-paragraph {
+        font-size: 1rem;
+    }
+    
+    .attributes-container {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .attribute-icon {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .attribute-item p {
+        font-size: 0.85rem;
+    }
+    
+    .cards-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .section-title {
+        font-size: 1.8rem;
+    }
+    
+    .block-title {
+        font-size: 1.8rem;
+    }
+    
+    .two-column-text {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .content-section-block {
+        padding: 3rem 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-banner-image {
+        height: 300px;
+    }
+    
+    .main-title {
+        font-size: 1.6rem;
+    }
+    
+    .attributes-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .cards-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================
    RESPONSIVE - ABOUT & CONTACT
    ============================================ */
 @media (max-width: 768px) {
