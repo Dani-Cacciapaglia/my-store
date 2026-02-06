@@ -26,21 +26,21 @@ const products = [
         name: "Una notte due persone",
         price: 80.00,
         description: "Prezzo a persona con colazione inclusa",
-        image: "images/products/product1.jpg"
+        image: "images/products/product4.jpg"
     },
     {
         id: 5,
         name: "Due notti due persone",
         price: 120.00,
         description: "Prezzo a persona con colazione inclusa",
-        image: "images/products/product2.jpg"
+        image: "images/products/product5.jpg"
     },
     {
         id: 6,
         name: "Oltre due notti due persone",
         price: 60.00,
         description: "Prezzo a persona per ogni notte successiva alla seconda, con colazione inclusa",
-        image: "images/products/product3.jpg"
+        image: "images/products/product6.jpg"
     }
 ];
 
