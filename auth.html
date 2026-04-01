@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google OAuth Authorization</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f6f8; color: #333; margin: 0; padding: 0; }
+        .container { max-width: 760px; margin: 40px auto; background: white; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 30px; }
+        h1 { margin-top: 0; }
+        .button { display: inline-block; margin: 15px 0; padding: 12px 24px; background: #4285f4; color: white; border: none; border-radius: 6px; text-decoration: none; font-weight: bold; }
+        .button:hover { background: #3367d6; }
+        .notice { background: #fff4db; color: #665800; border: 1px solid #ffe39f; padding: 12px; border-radius: 6px; margin-top: 18px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Authorize Google Calendar Access</h1>
+        <p>To link your availability calendar to Google Calendar, click the button below and complete login/consent.</p>
+
+        <a href="/auth/google" class="button">Authorize with Google</a>
+
+        <div class="notice">
+            <strong>Tip:</strong> If you typed "localhost auth.htm" in URL, use <code>http://localhost:3000/auth.html</code> or <code>http://localhost:3000/auth</code>.
+        </div>
+
+        <p>After authorization, you will see access and refresh tokens in the server log and on this page (or callback page), then paste them into <code>.env</code> and restart the server.</p>
+
+    </div>
+</body>
+</html>
