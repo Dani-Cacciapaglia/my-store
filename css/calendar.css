@@ -9,9 +9,9 @@
 }
 
 .availability-widget {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+    background: var(--surface-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
     overflow: hidden;
 }
 
@@ -21,35 +21,35 @@
     justify-content: space-between;
     align-items: center;
     padding: 2rem;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .header-text h3 {
     font-size: 1.8rem;
     font-weight: 400;
     margin-bottom: 0.5rem;
-    color: #222;
+    color: var(--text-color);
 }
 
 .header-text p {
     font-size: 1rem;
-    color: #666;
+    color: var(--subtext-color);
 }
 
 .btn-primary {
     padding: 0.8rem 2rem;
-    background: #333;
+    background: var(--brand-color);
     color: #fff;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     font-size: 1rem;
     font-weight: 500;
-    transition: background 0.3s ease;
+    transition: background var(--transition-medium);
     text-decoration: none;
     display: inline-block;
 }
 
 .btn-primary:hover {
-    background: #555;
+    background: var(--brand-color-hover);
 }
 
 /* Calendar Wrapper */
@@ -71,14 +71,14 @@
     cursor: pointer;
     padding: 0.5rem;
     border-radius: 50%;
-    transition: background 0.2s ease;
+    transition: background var(--transition-fast);
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .nav-btn:hover:not(:disabled) {
-    background: #f0f0f0;
+    background: var(--surface-hover);
 }
 
 .nav-btn:disabled {
@@ -101,7 +101,7 @@
 .month-label {
     font-size: 1rem;
     font-weight: 500;
-    color: #333;
+    color: var(--text-color);
     min-width: 150px;
     text-align: center;
 }
@@ -128,8 +128,8 @@
     text-align: center;
     font-size: 0.85rem;
     font-weight: 500;
-    color: #666;
-    border-bottom: 1px solid #e0e0e0;
+    color: var(--subtext-color);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .calendar-table tbody td {
@@ -146,35 +146,29 @@
     align-items: center;
     justify-content: center;
     border: none;
-    background: #fff;
+    background: var(--surface-color);
     font-size: 0.95rem;
-    color: #333;
+    color: var(--text-color);
     position: relative;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     margin: 2px;
     /* NO cursor or hover - view only */
 }
 
 .calendar-day:not(.disabled):not(.unavailable):hover {
-    background: #f5f5f5;
+    background: var(--surface-hover);
     transform: scale(1.05);
 }
 
 /* Day States */
 .calendar-day.today {
     font-weight: 600;
-    border: 2px solid #333;
+    border: 2px solid var(--text-color);
 }
-
-.calendar-day.available {
-    background: #fff;
-}
-
 .calendar-day.unavailable {
-    background: #f0f0f0;
-    color: #999;
+    background: var(--surface-muted);
+    color: var(--subtext-color);
     cursor: not-allowed;
-    position: relative;
 }
 
 .calendar-day.unavailable::after {
@@ -184,17 +178,14 @@
     left: 10%;
     right: 10%;
     height: 1px;
-    background: #ccc;
+    background: var(--border-color);
     transform: translateY(-50%) rotate(-45deg);
 }
 
-.calendar-day.disabled {
-    color: #ccc;
-    cursor: not-allowed;
-}
-
+.calendar-day.disabled,
 .calendar-day.outside-month {
-    color: #ccc;
+    color: var(--subtext-color);
+    cursor: not-allowed;
 }
 
 /* Legend */
@@ -203,7 +194,7 @@
     justify-content: center;
     gap: 2rem;
     padding-top: 1.5rem;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid var(--border-color);
 }
 
 .legend-item {
@@ -211,22 +202,22 @@
     align-items: center;
     gap: 0.5rem;
     font-size: 0.9rem;
-    color: #666;
+    color: var(--subtext-color);
 }
 
 .legend-box {
     width: 20px;
     height: 20px;
-    border-radius: 4px;
-    border: 1px solid #ddd;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
 }
 
 .legend-box.available {
-    background: #fff;
+    background: var(--surface-color);
 }
 
 .legend-box.unavailable {
-    background: #f0f0f0;
+    background: var(--surface-muted);
     position: relative;
 }
 
@@ -237,12 +228,12 @@
     left: 10%;
     right: 10%;
     height: 1px;
-    background: #999;
+    background: var(--subtext-color);
     transform: translateY(-50%) rotate(-45deg);
 }
 
 .legend-box.selected {
-    background: #333;
+    background: var(--brand-color);
 }
 
 /* ============================================

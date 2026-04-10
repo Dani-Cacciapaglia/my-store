@@ -5,6 +5,9 @@
 class AvailabilityCalendar {
     constructor() {
         this.currentMonth = new Date();
+        this.today = new Date();
+        this.today.setHours(0, 0, 0, 0);
+        this.apiUrl = typeof CALENDAR_CONFIG !== 'undefined' ? CALENDAR_CONFIG.API_URL : 'http://localhost:3000';
         this.unavailableDates = new Set();
         this.busySlots = [];
         this.init();
@@ -18,15 +21,9 @@ class AvailabilityCalendar {
 
     async loadAvailabilityData() {
         try {
-            // Calculate date range (3 months from today)
-            const today = new Date();
-            const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-            const endDate = new Date(today.getFullYear(), today.getMonth() + 3, 0);
-
-            // Try to fetch from Google Calendar API first
-            const apiUrl = typeof CALENDAR_CONFIG !== 'undefined' ? CALENDAR_CONFIG.API_URL : 'http://localhost:3000';
+            const { startDate, endDate } = this.getDateRange(3);
             const response = await fetch(
-                `${apiUrl}/api/availability?` +
+                `${this.apiUrl}/api/availability?` +
                 `startDate=${startDate.toISOString()}&` +
                 `endDate=${endDate.toISOString()}`
             );
@@ -35,9 +32,7 @@ class AvailabilityCalendar {
                 const data = await response.json();
                 
                 if (data.unavailableDates && Array.isArray(data.unavailableDates)) {
-                    this.unavailableDates = new Set(data.unavailableDates.filter(date => {
-                        return /^\d{4}-\d{2}-\d{2}$/.test(date);
-                    }));
+                    this.setUnavailableDates(data.unavailableDates);
                 }
                 
                 this.busySlots = data.busySlots || [];
@@ -50,20 +45,13 @@ class AvailabilityCalendar {
 
             // Fallback to JSON file if API not available
             console.warn('Google Calendar API unavailable, using fallback data');
-            const fallbackResponse = await fetch('data/availability.json');
-            const fallbackData = await fallbackResponse.json();
-            
-            if (fallbackData.unavailableDates && Array.isArray(fallbackData.unavailableDates)) {
-                this.unavailableDates = new Set(fallbackData.unavailableDates.filter(date => {
-                    return /^\d{4}-\d{2}-\d{2}$/.test(date);
-                }));
-            }
+            await this.loadFallbackData();
             
             console.log('Loaded from fallback (JSON):', Array.from(this.unavailableDates));
         } catch (error) {
             console.error('Error loading availability data:', error);
             // Hardcoded fallback
-            this.unavailableDates = new Set([
+            this.setUnavailableDates([
                 '2025-12-01', '2025-12-02', '2025-12-12', '2025-12-13',
                 '2025-12-24', '2025-12-25', '2025-12-26'
             ]);
@@ -71,14 +59,40 @@ class AvailabilityCalendar {
         }
     }
 
-    setupEventListeners() {
-        document.getElementById('prev-month').addEventListener('click', () => {
-            this.changeMonth(-1);
-        });
+    getDateRange(monthsAhead) {
+        const startDate = new Date(this.today.getFullYear(), this.today.getMonth(), 1);
+        const endDate = new Date(this.today.getFullYear(), this.today.getMonth() + monthsAhead, 0);
+        return { startDate, endDate };
+    }
 
-        document.getElementById('next-month').addEventListener('click', () => {
-            this.changeMonth(1);
-        });
+    setUnavailableDates(dates) {
+        this.unavailableDates = new Set(
+            dates.filter(date => /^\d{4}-\d{2}-\d{2}$/.test(date))
+        );
+    }
+
+    normalizeDate(date) {
+        const normalized = new Date(date);
+        normalized.setHours(0, 0, 0, 0);
+        return normalized;
+    }
+
+    getBusyEvent(dateString) {
+        return this.busySlots.find(slot => this.formatDate(new Date(slot.startTime)) === dateString);
+    }
+
+    async loadFallbackData() {
+        const fallbackResponse = await fetch('data/availability.json');
+        const fallbackData = await fallbackResponse.json();
+        if (fallbackData.unavailableDates && Array.isArray(fallbackData.unavailableDates)) {
+            this.setUnavailableDates(fallbackData.unavailableDates);
+        }
+    }
+
+    setupEventListeners() {
+        [['prev-month', -1], ['next-month', 1]].forEach(([id, step]) =>
+            document.getElementById(id).addEventListener('click', () => this.changeMonth(step))
+        );
     }
 
     changeMonth(direction) {
@@ -112,8 +126,7 @@ class AvailabilityCalendar {
 
         let dayCount = 1;
         let nextMonthDay = 1;
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        const today = this.today;
 
         for (let week = 0; week < 6; week++) {
             const row = document.createElement('tr');
@@ -153,10 +166,8 @@ class AvailabilityCalendar {
         div.className = 'calendar-day';
         div.textContent = day;
 
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const cellDate = new Date(date);
-        cellDate.setHours(0, 0, 0, 0);
+        const today = this.today;
+        const cellDate = this.normalizeDate(date);
 
         if (isOutsideMonth) {
             div.classList.add('outside-month');
@@ -173,13 +184,7 @@ class AvailabilityCalendar {
         const dateString = this.formatDate(cellDate);
         if (this.unavailableDates.has(dateString)) {
             div.classList.add('unavailable');
-            
-            // Add tooltip with busy event if available
-            const busyEvent = this.busySlots.find(slot => {
-                const slotDate = this.formatDate(new Date(slot.startTime));
-                return slotDate === dateString;
-            });
-            
+            const busyEvent = this.getBusyEvent(dateString);
             if (busyEvent) {
                 div.setAttribute('title', `Busy: ${busyEvent.title}`);
                 div.setAttribute('data-busy', busyEvent.title);
@@ -208,15 +213,9 @@ class AvailabilityCalendar {
     }
 
     updateNavigationButtons() {
-        const today = new Date();
         const prevBtn = document.getElementById('prev-month');
-        
-        if (this.currentMonth.getMonth() === today.getMonth() && 
-            this.currentMonth.getFullYear() === today.getFullYear()) {
-            prevBtn.disabled = true;
-        } else {
-            prevBtn.disabled = false;
-        }
+        prevBtn.disabled = this.currentMonth.getMonth() === this.today.getMonth() &&
+            this.currentMonth.getFullYear() === this.today.getFullYear();
     }
 }
 
