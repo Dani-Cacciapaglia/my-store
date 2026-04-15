@@ -37,12 +37,12 @@ if (fs.existsSync('node_modules')) {
 // Test 3: Check required files
 console.log('\n3️⃣  Checking required files...');
 const requiredFiles = [
-    'server.js',
+    'src/server.js',
     'package.json',
-    'js/calendar.js',
-    'js/config.js',
-    'availability.html',
-    'data/availability.json'
+    'public/js/calendar.js',
+    'public/js/config.js',
+    'public/availability.html',
+    'public/data/availability.json'
 ];
 
 requiredFiles.forEach(file => {

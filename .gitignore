@@ -12,6 +12,13 @@ node_modules/
 # Environment variables
 .env
 
+# Logs
+*.log
+server.log
+
+# Environment variables
+.env
+
 # Build files
 dist/
 build/

@@ -6,39 +6,41 @@ Complete reference for your Google Calendar API integration.
 
 ```
 my-store/
-├── 📖 Documentation Files
+├── 📖 docs/                          ← Documentation Files
 │   ├── IMPLEMENTATION_SUMMARY.md    ← Overview of what was built
 │   ├── GOOGLE_CALENDAR_SETUP.md     ← Complete step-by-step setup guide
 │   ├── QUICK_START.md               ← Quick reference guide
 │   ├── API_REQUESTS.md              ← API testing examples
-│   └── README (this file)
+│   └── README_CALENDAR.md           ← Project index (this file)
 │
-├── 🚀 Backend Files
-│   ├── server.js                    ← Express server + Google Calendar API
-│   ├── package.json                 ← Node.js dependencies
-│   └── .env.example                 ← Environment variables template
+├── 🚀 src/                           ← Backend Source Code
+│   └── server.js                    ← Express server + Google Calendar API
 │
-├── 🎨 Frontend Files
-│   ├── availability.html            ← Updated with API integration
-│   ├── js/calendar.js               ← Updated to fetch from API
-│   ├── js/config.js                 ← Configuration file (NEW)
-│   ├── js/main.js
-│   └── css/calendar.css
+├── 🎨 public/                        ← Frontend Static Files
+│   ├── *.html                       ← HTML pages (index, about, products, etc.)
+│   ├── css/                         ← Stylesheets
+│   │   ├── style.css                ← Main site styles
+│   │   └── calendar.css             ← Calendar-specific styles
+│   ├── js/                          ← JavaScript files
+│   │   ├── config.js                ← API configuration
+│   │   ├── calendar.js              ← Calendar functionality
+│   │   ├── main.js                  ← Common UI functionality
+│   │   ├── products.js              ← Product display logic
+│   │   └── contact.js               ← Contact form handling
+│   ├── images/                      ← Image assets
+│   │   ├── *.jpg                    ← Hero and content images
+│   │   └── products/                ← Product images
+│   └── data/                        ← JSON data files
+│       ├── availability.json        ← Fallback availability data
+│       └── products.json            ← Product information
 │
-├── 🧪 Testing & Setup
+├── 🧪 Root Configuration Files
+│   ├── package.json                 ← Node.js dependencies and scripts
+│   ├── .env.example                 ← Environment variables template
+│   ├── .gitignore                   ← Git ignore rules
 │   ├── test-setup.js                ← Verification script
-│   └── quickstart.sh                ← Auto-setup script
-│
-├── 📊 Data Files
-│   ├── data/availability.json       ← Fallback JSON data
-│   └── data/products.json
-│
-└── 🎯 Other Files
-    ├── .gitignore
-    ├── index.html
-    ├── products.html
-    ├── contact.html
-    └── about.html
+│   ├── quick-setup.sh               ← Auto-setup script
+│   └── quickstart.sh                ← Basic setup script
 ```
 
 ## 🚀 Getting Started (Quick Path)

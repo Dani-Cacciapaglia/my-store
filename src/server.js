@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3000;
 // Middleware and CORS setup
 app.use(cors());
 app.use(express.json());
-app.use(express.static('.'));
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 const REQUIRED_ENV_VARS = [
     'GOOGLE_CLIENT_ID',
@@ -166,7 +166,7 @@ app.get('/auth/google', (req, res) => {
 
 // Serve auth page at multiple endpoints to avoid "not found" mistakes
 app.get(['/auth', '/auth.html', '/auth.htm'], (req, res) => {
-    res.sendFile(path.join(__dirname, 'auth.html'));
+    res.sendFile(path.join(__dirname, '..', 'public', 'auth.html'));
 });
 
 // Endpoint to handle OAuth callback
