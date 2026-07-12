@@ -1,122 +1,60 @@
-# Google Calendar Integration Setup Guide
+# Google Calendar Setup
 
-This guide walks you through integrating Google Calendar with your availability calendar.
+The availability calendar uses Google Calendar as the source of truth and the Worker routes to fetch and cache that data.
 
-## Overview
+## 1. Create a Google Cloud project
 
-Your availability calendar now pulls data directly from Google Calendar using the Google Calendar REST API. Days with events marked as "busy" will automatically display as unavailable.
+1. Open the Google Cloud Console.
+2. Create or select a project.
+3. Enable the Google Calendar API.
+4. Create OAuth credentials for a web application.
 
-## Step 1: Install Dependencies
+## 2. Configure OAuth redirect URIs
 
-```bash
-cd /home/daniele/Desktop/my-store
-npm install
-```
+Add these redirect URIs in the Google Console:
 
-This installs:
-- **express**: Web server framework
-- **googleapis**: Official Google API client library
-- **cors**: Cross-Origin Resource Sharing for API requests
-- **dotenv**: Environment variable management
+- Local development: `http://localhost:8787/auth/google/callback`
+- Production: `https://<your-worker-domain>.workers.dev/auth/google/callback`
 
-## Step 2: Get Google Calendar API Credentials
+## 3. Set the environment variables
 
-### 2.1 Create a Google Cloud Project
-
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Click "Select a Project" → "New Project"
-3. Enter project name (e.g., "My Store Availability")
-4. Click "Create"
-
-### 2.2 Enable Google Calendar API
-
-1. In Google Cloud Console, search for "Google Calendar API"
-2. Click on it and press "Enable"
-3. Wait for activation to complete
-
-### 2.3 Create OAuth 2.0 Credentials
-
-1. Go to **Credentials** (left menu)
-2. Click "Create Credentials" → "OAuth 2.0 Client ID"
-3. If prompted, set up OAuth consent screen first:
-   - Choose "External"
-   - Fill in app name, user support email, developer email
-   - In scopes, add `https://www.googleapis.com/auth/calendar.readonly`
-4. Back to credentials creation:
-   - Application type: **Web application**
-   - Name: "My Store Calendar"
-   - Authorized redirect URIs: `http://localhost:3000/auth/google/callback`
-   - Click "Create"
-5. Copy your **Client ID** and **Client Secret**
-
-## Step 3: Initial Authorization
-
-### 3.1 Create .env file
-
-Copy `.env.example` to `.env`:
-
-```bash
-cp .env.example .env
-```
-
-### 3.2 Start the server
-
-```bash
-npm start
-```
-
-You'll see:
-```
-Server running at http://localhost:3000
-Visit http://localhost:3000/auth/google to authorize
-```
-
-### 3.3 Authorize the application
-
-1. Open `http://localhost:3000/auth/google` in your browser
-2. Sign in with your Google account
-3. Grant calendar access when prompted
-4. You'll be redirected and see tokens in console
-5. Copy the **Refresh Token** and **Access Token** from console output
-
-### 3.4 Update .env file
-
-Add the tokens you just got:
+The Worker reads these values from Cloudflare secrets or the local `.env` file:
 
 ```env
-GOOGLE_CLIENT_ID=your_client_id_here.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=your_client_secret_here
-GOOGLE_REDIRECT_URL=http://localhost:3000/auth/google/callback
-GOOGLE_ACCESS_TOKEN=your_access_token_here
-GOOGLE_REFRESH_TOKEN=your_refresh_token_here
+GOOGLE_CLIENT_ID=your_client_id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your_client_secret
+GOOGLE_REDIRECT_URL=http://localhost:8787/auth/google/callback
 GOOGLE_CALENDAR_ID=primary
-PORT=3000
 ```
 
-## Step 4: Configure Calendar
+## 4. Authorize the app
 
-### Option A: Use Primary Calendar (Recommended)
+Start the local preview and open:
 
-Leave `GOOGLE_CALENDAR_ID=primary` - this uses your default calendar.
+```text
+http://localhost:8787/auth/google
+```
 
-### Option B: Use Specific Calendar
+Complete the Google consent flow. The callback stores the OAuth tokens in KV (when configured) and the calendar can then read the events.
 
-1. In Google Calendar, right-click the calendar name
-2. Select "Settings"
-3. Copy the Calendar ID (usually an email)
-4. Add to .env: `GOOGLE_CALENDAR_ID=your-calendar-id@gmail.com`
+## 5. Deploy to Cloudflare
 
-## Step 5: Test the Integration
+Store the same variables in the Cloudflare Dashboard or via Wrangler secrets.
 
-1. Restart the server:
-   ```bash
-   npm start
-   ```
+```bash
+wrangler secret put GOOGLE_CLIENT_ID
+wrangler secret put GOOGLE_CLIENT_SECRET
+wrangler secret put GOOGLE_REDIRECT_URL
+wrangler secret put GOOGLE_CALENDAR_ID
+```
 
-2. Open your availability page in a browser (adjust path as needed):
-   ```
-   http://localhost:3000/availability.html
-   ```
+## Security recommendations
+
+- Rotate the Google client secret if it was ever exposed.
+- Keep `.env` local and do not commit it.
+- Restrict the redirect URIs to the exact hosts you use.
+- Review the Worker response headers after deployment and confirm the CSP is acceptable.
+
 
 3. Check browser console for:
    - `✓ Loaded from Google Calendar` - API is working

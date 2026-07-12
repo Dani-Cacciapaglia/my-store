@@ -1,122 +1,40 @@
-# 🎉 Google Calendar Integration - Implementation Summary
+# Implementation Summary
 
-Your availability calendar is now fully integrated with Google Calendar's REST API!
+The website now uses a Cloudflare Pages frontend with Worker-based endpoints for OAuth and calendar availability.
 
-## What Was Implemented
+## Current architecture
 
-### ✅ Backend Server (`server.js`)
-- **Express.js HTTP server** with REST API endpoints
-- **OAuth 2.0 authentication** with Google
-- **Google Calendar API integration** to fetch events
-- **Event processing** to determine unavailable dates
-- **Error handling & fallbacks** for reliability
-- **CORS support** for frontend communication
+- Cloudflare Pages serves the static site from `public/`
+- Cloudflare Workers handle:
+  - `/auth/google`
+  - `/auth/google/callback`
+  - `/api/availability`
+  - `/api/availability/fallback`
+- Google Calendar is the live source of busy dates
+- The frontend uses the existing availability page and the calendar widget
 
-### ✅ Frontend Updates (`js/calendar.js`)
-- **Dynamic data fetching** from backend API
-- **Real-time synchronization** with Google Calendar
-- **Automatic fallback** to JSON if API unavailable
-- **Event tooltips** showing busy event titles
-- **Enhanced error handling** with multiple fallback layers
-- **Debug logging** for troubleshooting
+## What changed
 
-### ✅ Configuration System (`js/config.js`)
-- **Centralized API configuration**
-- **Environment detection**
-- **Debug mode toggle**
-- **Easy API URL switching** for different environments
+- The Worker validates incoming paths and rejects traversal attempts
+- Security headers are applied to HTML, JSON, and static responses
+- The API validates date parameters and limits the request range
+- OAuth error messages are now generic to avoid leaking configuration details
+- The project now documents the deployment flow in one consolidated place
 
-### ✅ Setup & Documentation
-- **GOOGLE_CALENDAR_SETUP.md** - Complete step-by-step guide
-- **QUICK_START.md** - Quick reference for common tasks
-- **test-setup.js** - Automated verification script
-- **quickstart.sh** - Auto-setup shell script
-- **.env.example** - Template for environment variables
+## Security hardening completed
 
-## Architecture
+- Added CSP and other hardening headers
+- Blocked traversal-like paths before they reach the static file handler
+- Restricted the debug endpoint so it is not exposed by default
+- Reduced the amount of internal error detail returned to clients
 
-```
-┌─────────────────────────────────────────────────────┐
-│          Google Calendar (Cloud)                     │
-└────────────────────┬────────────────────────────────┘
-                     │ (REST API)
-                     ▼
-┌─────────────────────────────────────────────────────┐
-│    Backend Server (Node.js + Express)               │
-│  • OAuth2 Authentication                            │
-│  • Event Processing                                 │
-│  • REST API (/api/availability)                     │
-└──────────────┬──────────────────────────────────────┘
-               │ (HTTP JSON)
-               ▼
-┌─────────────────────────────────────────────────────┐
-│    Frontend (HTML + JavaScript)                     │
-│  • availability.html                                │
-│  • js/calendar.js (updated)                         │
-│  • js/config.js (new)                               │
-└─────────────────────────────────────────────────────┘
-```
+## Remaining follow-up
 
-## API Endpoints Created
+- Rotate the Google client secret if it has been exposed before
+- Store secrets in Cloudflare secrets instead of local environment files in production
+- Review the deployed CSP in the browser and adjust if any necessary resource is blocked
+- Re-run `npm audit` after dependency updates and address any remaining issues
 
-### `/api/availability` - GET
-Fetches unavailable dates from Google Calendar
-
-**Parameters:**
-- `startDate` (required): ISO 8601 date-time
-- `endDate` (required): ISO 8601 date-time
-
-**Response:**
-```json
-{
-  "unavailableDates": ["2026-04-15", "2026-04-16"],
-  "busySlots": [
-    {
-      "title": "Team Meeting",
-      "startTime": "2026-04-15T10:00:00Z",
-      "endTime": "2026-04-15T11:00:00Z"
-    }
-  ],
-  "totalEvents": 5
-}
-```
-
-### `/auth/google` - GET
-Returns OAuth authorization URL for initial setup
-
-### `/auth/google/callback` - GET
-Handles OAuth callback and token exchange
-
-## How Events Are Processed
-
-| Event Type | Result |
-|-----------|--------|
-| All-day event (busy) | Entire day marked unavailable |
-| Timed event (busy) | All days event spans marked unavailable |
-| Event marked "Free" | Ignored (not marked unavailable) |
-| Event marked "Tentative" | Ignored (not marked unavailable) |
-| All-day event (free) | Ignored (not marked unavailable) |
-
-## Fallback Chain
-
-```
-1. Try Google Calendar API → Success ✓
-2. If API fails → Try JSON file (data/availability.json)
-3. If JSON fails → Use hardcoded fallback dates
-4. Calendar always displays something
-```
-
-## Key Features
-
-✅ **Real-time sync** - Updates on page refresh  
-✅ **Smart fallback** - Works even if API is down  
-✅ **Event details** - See busy event titles on hover  
-✅ **OAuth secured** - Secure authentication with Google  
-✅ **Easy setup** - Follow GOOGLE_CALENDAR_SETUP.md  
-✅ **Production ready** - Deploy to any Node.js hosting  
-✅ **Debug mode** - Built-in logging for troubleshooting  
-
-## Files Created
 
 | File | Purpose |
 |------|---------|

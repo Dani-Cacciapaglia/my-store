@@ -3,7 +3,7 @@
  * Handles Google Calendar availability and fallback data
  */
 
-import { getCorsHeaders, initGoogleCalendar, isEventBusy, getEventRange, markUnavailableDates } from './utils.js';
+import { getCorsHeaders, initGoogleCalendar, isEventBusy, getEventRange, markUnavailableDates, parseAndValidateDateParam } from './utils.js';
 
 /**
  * Handle /api/availability - Fetch events from Google Calendar
@@ -31,12 +31,58 @@ export async function handleAvailability(request, env) {
       );
     }
 
+    let parsedStartDate;
+    let parsedEndDate;
+
+    try {
+      parsedStartDate = parseAndValidateDateParam(startDate, 'startDate');
+      parsedEndDate = parseAndValidateDateParam(endDate, 'endDate');
+    } catch (error) {
+      return new Response(
+        JSON.stringify({ error: error.message }),
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            ...getCorsHeaders(),
+          },
+        }
+      );
+    }
+
+    if (parsedEndDate <= parsedStartDate) {
+      return new Response(
+        JSON.stringify({ error: 'endDate must be after startDate' }),
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            ...getCorsHeaders(),
+          },
+        }
+      );
+    }
+
+    const maxRange = 1000 * 60 * 60 * 24 * 365;
+    if (parsedEndDate.getTime() - parsedStartDate.getTime() > maxRange) {
+      return new Response(
+        JSON.stringify({ error: 'Date range exceeds the supported maximum of one year' }),
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            ...getCorsHeaders(),
+          },
+        }
+      );
+    }
+
     const { calendar, calendarId } = await initGoogleCalendar(env);
 
     const response = await calendar.events.list({
       calendarId,
-      timeMin: new Date(startDate).toISOString(),
-      timeMax: new Date(endDate).toISOString(),
+      timeMin: parsedStartDate.toISOString(),
+      timeMax: parsedEndDate.toISOString(),
       singleEvents: true,
       orderBy: 'startTime',
       maxResults: 2500,

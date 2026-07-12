@@ -3,7 +3,7 @@
  * Manages Google Calendar OAuth flow
  */
 
-import { validateGoogleEnv, getCorsHeaders } from './utils.js';
+import { validateGoogleEnv, getCorsHeaders, getSafeRedirectUrl } from './utils.js';
 import { initGoogleCalendar } from './utils.js';
 
 /**
@@ -29,11 +29,26 @@ export async function handleGoogleAuth(request, env) {
     // Initialize Google Calendar
     const { oauth2Client } = await initGoogleCalendar(env);
 
+    const redirectUrl = getSafeRedirectUrl(env.GOOGLE_REDIRECT_URL || '');
+    if (!redirectUrl) {
+      return new Response(
+        JSON.stringify({ error: 'OAuth redirect URL is not configured' }),
+        {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+            ...getCorsHeaders(),
+          },
+        }
+      );
+    }
+
     // Generate authorization URL
     const authUrl = oauth2Client.generateAuthUrl({
       access_type: 'offline',
       scope: ['https://www.googleapis.com/auth/calendar.readonly'],
       prompt: 'consent',
+      redirect_uri: redirectUrl,
     });
 
     // Redirect to Google
@@ -48,7 +63,7 @@ export async function handleGoogleAuth(request, env) {
   } catch (error) {
     console.error('Auth URL generation failed:', error);
     return new Response(
-      JSON.stringify({ error: 'OAuth configuration error', message: error.message }),
+      JSON.stringify({ error: 'OAuth configuration error' }),
       {
         status: 500,
         headers: {
@@ -140,7 +155,7 @@ export async function handleGoogleCallback(request, env) {
   } catch (error) {
     console.error('Token exchange failed:', error);
     return new Response(
-      getAuthErrorHtml(`Token exchange failed: ${error.message}`),
+      getAuthErrorHtml('Token exchange failed. Please check your OAuth configuration and try again.'),
       {
         status: 500,
         headers: {

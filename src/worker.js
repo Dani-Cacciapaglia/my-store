@@ -7,7 +7,7 @@ import { handleGoogleAuth, handleGoogleCallback } from './auth.js';
 import { handleAvailability, handleFallbackAvailability } from './api.js';
 import { serveStaticFile, serveIndexPage } from './static.js';
 import { handleRSSFeed, prefetchRSSFeeds } from './rss.js';
-import { getCorsHeaders } from './utils.js';
+import { getCorsHeaders, sanitizeRequestPath } from './utils.js';
 
 async function handleDebugEnv(request, env) {
   return new Response(
@@ -62,7 +62,7 @@ const REQUEST_MAPPING = {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
-    const pathname = url.pathname;
+    const pathname = sanitizeRequestPath(url.pathname) || '/';
     const method = request.method;
 
     // Log incoming request
@@ -73,6 +73,13 @@ export default {
       if (method === 'OPTIONS') {
         return new Response(null, {
           status: 204,
+          headers: getCorsHeaders(),
+        });
+      }
+
+      if (pathname === '/debug-env' && (env.DEBUG !== 'true' && env.DEBUG !== true)) {
+        return new Response('Forbidden', {
+          status: 403,
           headers: getCorsHeaders(),
         });
       }
@@ -137,7 +144,7 @@ export default {
       return new Response(
         JSON.stringify({
           error: 'Internal Server Error',
-          message: error.message,
+          message: 'An unexpected error occurred.',
           path: pathname,
         }),
         {

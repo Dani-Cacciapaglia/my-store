@@ -35,8 +35,19 @@ export const CORS_HEADERS = {
 /**
  * Get CORS headers for responses
  */
+export function getSecurityHeaders() {
+  return {
+    'Content-Security-Policy': "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; script-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+    'X-Content-Type-Options': 'nosniff',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'X-Frame-Options': 'DENY',
+    'Permissions-Policy': 'geolocation=(), camera=(), microphone=()'
+  };
+}
+
 export function getCorsHeaders() {
   return {
+    ...getSecurityHeaders(),
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
@@ -275,4 +286,70 @@ export function logDebug(env, ...args) {
   if (env.DEBUG === 'true' || env.DEBUG === true) {
     console.log('[DEBUG]', ...args);
   }
+}
+
+export function sanitizeRequestPath(pathname) {
+  if (typeof pathname !== 'string') {
+    return null;
+  }
+
+  const trimmed = pathname.trim();
+  if (!trimmed || trimmed === '/') {
+    return '/';
+  }
+
+  const containsBadPattern = /(?:^|\/)(?:\.\.)(?:$|\/)|%2e|%2f|%5c/i.test(trimmed);
+  if (containsBadPattern || trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return null;
+  }
+
+  try {
+    const decoded = decodeURIComponent(trimmed);
+    if (decoded.includes('..')) {
+      return null;
+    }
+  } catch {
+    return null;
+  }
+
+  const normalized = trimmed.replace(/\\/g, '/').replace(/^\/+/, '/');
+  if (!/^[\w./-]+$/.test(normalized)) {
+    return null;
+  }
+
+  return normalized;
+}
+
+export function getSafeRedirectUrl(value) {
+  if (typeof value !== 'string' || value.trim() === '') {
+    return null;
+  }
+
+  try {
+    const parsed = new URL(value);
+    if (!['http:', 'https:'].includes(parsed.protocol)) {
+      return null;
+    }
+    return parsed.toString();
+  } catch {
+    return null;
+  }
+}
+
+export function parseAndValidateDateParam(value, fieldName) {
+  if (typeof value !== 'string' || value.trim() === '') {
+    throw new Error(`Missing ${fieldName}`);
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    throw new Error(`Invalid ${fieldName}`);
+  }
+
+  const now = Date.now();
+  if (date.getTime() < now - 1000 * 60 * 60 * 24 * 365 * 10 || date.getTime() > now + 1000 * 60 * 60 * 24 * 365 * 2) {
+    throw new Error(`${fieldName} is outside the supported range`);
+  }
+
+  return date;
 }

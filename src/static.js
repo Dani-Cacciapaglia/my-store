@@ -3,20 +3,28 @@
  * Serves HTML, CSS, JS, images, and other static assets
  */
 
-import { getCorsHeaders } from './utils.js';
+import { getCorsHeaders, sanitizeRequestPath } from './utils.js';
 
 /**
  * Serve a static file (HTML, CSS, JS, images, etc.)
  */
 export async function serveStaticFile(filename, env) {
   try {
-    const normalized = filename.startsWith('/') ? filename.slice(1) : filename;
+    const normalized = sanitizeRequestPath(filename);
+    if (!normalized) {
+      return new Response('Invalid path', {
+        status: 400,
+        headers: getCorsHeaders(),
+      });
+    }
 
-    if (normalized === 'index.html' || normalized === '') {
+    const assetPath = normalized.startsWith('/') ? normalized.slice(1) : normalized;
+
+    if (assetPath === 'index.html' || assetPath === '') {
       return serveIndexPage(env);
     }
 
-    if (normalized === 'auth.html' || normalized === 'auth.htm') {
+    if (assetPath === 'auth.html' || assetPath === 'auth.htm') {
       return new Response(
         `<!DOCTYPE html>
 <html>
@@ -42,10 +50,10 @@ export async function serveStaticFile(filename, env) {
 
     // Try to get file from KV if configured
     if (env.STATIC_FILES) {
-      const content = await env.STATIC_FILES.get(normalized);
+      const content = await env.STATIC_FILES.get(assetPath);
       if (content) {
-        const mimeType = getMimeType(normalized);
-        const cacheHeader = getCacheDuration(normalized);
+        const mimeType = getMimeType(assetPath);
+        const cacheHeader = getCacheDuration(assetPath);
         return new Response(content, {
           status: 200,
           headers: {
@@ -60,8 +68,8 @@ export async function serveStaticFile(filename, env) {
     }
 
     // Fall back to Cloudflare Pages for static assets
-    const pagesUrl = env.PAGES_URL || 'https://lapapessavacanze.com';
-    const redirectUrl = pagesUrl.endsWith('/') ? `${pagesUrl}${normalized}` : `${pagesUrl}/${normalized}`;
+    const pagesUrl = getPagesBaseUrl(env);
+    const redirectUrl = pagesUrl.endsWith('/') ? `${pagesUrl}${assetPath}` : `${pagesUrl}/${assetPath}`;
     return new Response(null, {
       status: 302,
       headers: {
@@ -98,7 +106,7 @@ export async function serveIndexPage(env) {
   }
 
   // Redirect to Cloudflare Pages for the main site when static KV is not available.
-  const pagesUrl = env.PAGES_URL || 'https://lapapessavacanze.com';
+  const pagesUrl = getPagesBaseUrl(env);
   return new Response(null, {
     status: 302,
     headers: {
@@ -111,6 +119,16 @@ export async function serveIndexPage(env) {
 /**
  * Get MIME type for file extension
  */
+function getPagesBaseUrl(env) {
+  const configured = env?.PAGES_URL || 'https://lapapessavacanze.com';
+  try {
+    const parsed = new URL(configured);
+    return ['http:', 'https:'].includes(parsed.protocol) ? parsed.origin : 'https://lapapessavacanze.com';
+  } catch {
+    return 'https://lapapessavacanze.com';
+  }
+}
+
 function getMimeType(filename) {
   const mimeTypes = {
     '.html': 'text/html',

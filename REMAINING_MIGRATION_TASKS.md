@@ -280,6 +280,36 @@ After completing all tasks, verify:
 - [ ] Production deployment succeeds
 - [ ] Production URLs work as expected
 
+## 🔐 Security Review & Remediation Checklist
+
+**Status:** IN PROGRESS - Review and rotate secrets regularly.
+
+**What was hardened in this pass:**
+1. Added security headers such as CSP, `X-Content-Type-Options`, `Referrer-Policy`, and `X-Frame-Options`.
+2. Sanitized requested asset paths to prevent traversal-style access and reject malformed requests.
+3. Validated API date parameters and limited the supported range to one year.
+4. Restricted the debug endpoint so it is not exposed by default.
+5. Reduced the amount of internal error detail returned to clients during OAuth and API failures.
+
+**Recommended follow-up actions:**
+1. Rotate the Google OAuth client secret and any exposed refresh/access tokens immediately if they were ever shared or committed.
+2. Store production secrets in Cloudflare secrets or the Pages/Workers dashboard rather than relying on local `.env` files.
+3. Review the deployed CSP in a browser and adjust if any legitimate resource is being blocked.
+4. Run `npm audit` and `node --test tests/cloudflare-config.test.js` regularly after dependency updates.
+5. If the site will receive public traffic, enable Cloudflare WAF / rate limiting / bot management on the zone where the project is hosted.
+
+**Optimized Prompt:**
+```
+Perform a security review for the Cloudflare deployment:
+1. Rotate all exposed Google OAuth secrets and tokens.
+2. Confirm that Cloudflare secrets and environment variables are set for production.
+3. Review the Worker response headers and adjust CSP as needed.
+4. Enable Cloudflare security protections such as WAF, rate limiting, and bot management if available.
+5. Re-run dependency and regression checks before publishing further changes.
+```
+
+---
+
 ## 🆘 Troubleshooting
 
 **Common Issues:**
