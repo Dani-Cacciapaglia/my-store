@@ -26,10 +26,10 @@
   },
   "dependencies": {
     "dotenv": "^16.3.1",
-    "googleapis": "^173.0.0"
+    "googleapis": "^118.0.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^5.20260712.1",
-    "wrangler": "^4.110.0"
+    "@cloudflare/workers-types": "^4.20240404.0",
+    "wrangler": "^4.91.0"
   }
 }

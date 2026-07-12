@@ -3,35 +3,27 @@
  * Serves HTML, CSS, JS, images, and other static assets
  */
 
-import { getCorsHeaders, sanitizeRequestPath } from './utils.js';
+import { getCorsHeaders } from './utils.js';
 
 /**
  * Serve a static file (HTML, CSS, JS, images, etc.)
  */
 export async function serveStaticFile(filename, env) {
   try {
-    const normalized = sanitizeRequestPath(filename);
-    if (!normalized) {
-      return new Response('Invalid path', {
-        status: 400,
-        headers: getCorsHeaders(),
-      });
-    }
+    const normalized = filename.startsWith('/') ? filename.slice(1) : filename;
 
-    const assetPath = normalized.startsWith('/') ? normalized.slice(1) : normalized;
-
-    if (assetPath === 'index.html' || assetPath === '') {
+    if (normalized === 'index.html' || normalized === '') {
       return serveIndexPage(env);
     }
 
-    if (assetPath === 'auth.html' || assetPath === 'auth.htm') {
+    if (normalized === 'auth.html' || normalized === 'auth.htm') {
       return new Response(
         `<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>La Papessa | Autorizzazione</title>
+    <title>Google Calendar Auth</title>
 </head>
 <body>
     <h1>Google Calendar Authorization</h1>
@@ -42,9 +34,6 @@ export async function serveStaticFile(filename, env) {
           status: 200,
           headers: {
             'Content-Type': 'text/html',
-            'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
-            'Pragma': 'no-cache',
-            'Expires': '0',
             ...getCorsHeaders(),
           },
         }
@@ -53,19 +42,15 @@ export async function serveStaticFile(filename, env) {
 
     // Try to get file from KV if configured
     if (env.STATIC_FILES) {
-      const content = await env.STATIC_FILES.get(assetPath);
+      const content = await env.STATIC_FILES.get(normalized);
       if (content) {
-        const mimeType = getMimeType(assetPath);
-        const isHtml = mimeType === 'text/html';
-        const cacheHeader = isHtml
-          ? 'no-store, no-cache, must-revalidate, max-age=0'
-          : getCacheDuration(assetPath);
+        const mimeType = getMimeType(normalized);
+        const cacheHeader = getCacheDuration(normalized);
         return new Response(content, {
           status: 200,
           headers: {
             'Content-Type': mimeType,
             'Cache-Control': cacheHeader,
-            ...(isHtml ? { 'Pragma': 'no-cache', 'Expires': '0' } : {}),
             ...getCorsHeaders(),
           },
         });
@@ -75,8 +60,8 @@ export async function serveStaticFile(filename, env) {
     }
 
     // Fall back to Cloudflare Pages for static assets
-    const pagesUrl = getPagesBaseUrl(env);
-    const redirectUrl = pagesUrl.endsWith('/') ? `${pagesUrl}${assetPath}` : `${pagesUrl}/${assetPath}`;
+    const pagesUrl = env.PAGES_URL || 'https://lapapessavacanze.com';
+    const redirectUrl = pagesUrl.endsWith('/') ? `${pagesUrl}${normalized}` : `${pagesUrl}/${normalized}`;
     return new Response(null, {
       status: 302,
       headers: {
@@ -105,9 +90,7 @@ export async function serveIndexPage(env) {
         status: 200,
         headers: {
           'Content-Type': 'text/html',
-          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
-          'Pragma': 'no-cache',
-          'Expires': '0',
+          'Cache-Control': 'no-cache',
           ...getCorsHeaders(),
         },
       });
@@ -115,7 +98,7 @@ export async function serveIndexPage(env) {
   }
 
   // Redirect to Cloudflare Pages for the main site when static KV is not available.
-  const pagesUrl = getPagesBaseUrl(env);
+  const pagesUrl = env.PAGES_URL || 'https://lapapessavacanze.com';
   return new Response(null, {
     status: 302,
     headers: {
@@ -128,16 +111,6 @@ export async function serveIndexPage(env) {
 /**
  * Get MIME type for file extension
  */
-function getPagesBaseUrl(env) {
-  const configured = env?.PAGES_URL || 'https://lapapessavacanze.com';
-  try {
-    const parsed = new URL(configured);
-    return ['http:', 'https:'].includes(parsed.protocol) ? parsed.origin : 'https://lapapessavacanze.com';
-  } catch {
-    return 'https://lapapessavacanze.com';
-  }
-}
-
 function getMimeType(filename) {
   const mimeTypes = {
     '.html': 'text/html',

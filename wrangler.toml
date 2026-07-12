@@ -221,7 +221,7 @@ cwd = "./"
 # ├── wrangler.toml           ← This file
 # ├── package.json            ← Node.js dependencies
 # ├── .env                    ← Local environment (don't commit)
-# └── REMAINING_MIGRATION_TASKS.md
+# └── CLOUDFLARE_CONVERSION_PLAN.md
 
 # ============================================================================
 # DEPLOYMENT CHECKLIST
