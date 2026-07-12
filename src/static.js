@@ -31,7 +31,7 @@ export async function serveStaticFile(filename, env) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Calendar Auth</title>
+    <title>La Papessa | Autorizzazione</title>
 </head>
 <body>
     <h1>Google Calendar Authorization</h1>
@@ -42,6 +42,9 @@ export async function serveStaticFile(filename, env) {
           status: 200,
           headers: {
             'Content-Type': 'text/html',
+            'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma': 'no-cache',
+            'Expires': '0',
             ...getCorsHeaders(),
           },
         }
@@ -53,12 +56,16 @@ export async function serveStaticFile(filename, env) {
       const content = await env.STATIC_FILES.get(assetPath);
       if (content) {
         const mimeType = getMimeType(assetPath);
-        const cacheHeader = getCacheDuration(assetPath);
+        const isHtml = mimeType === 'text/html';
+        const cacheHeader = isHtml
+          ? 'no-store, no-cache, must-revalidate, max-age=0'
+          : getCacheDuration(assetPath);
         return new Response(content, {
           status: 200,
           headers: {
             'Content-Type': mimeType,
             'Cache-Control': cacheHeader,
+            ...(isHtml ? { 'Pragma': 'no-cache', 'Expires': '0' } : {}),
             ...getCorsHeaders(),
           },
         });
@@ -98,7 +105,9 @@ export async function serveIndexPage(env) {
         status: 200,
         headers: {
           'Content-Type': 'text/html',
-          'Cache-Control': 'no-cache',
+          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
           ...getCorsHeaders(),
         },
       });
