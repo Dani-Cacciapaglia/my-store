@@ -104,13 +104,18 @@ img {
     font-size: 0.95rem;
     font-weight: 400;
     letter-spacing: 0.5px;
-    transition: color var(--transition-medium);
+    transition: color var(--transition-medium), background var(--transition-medium);
     position: relative;
+    padding: 0.35rem 0;
 }
 
-.nav-links a:hover,
+.nav-links a:hover {
+    color: var(--brand-color-hover);
+}
+
 .nav-links a.active {
-    color: var(--subtext-color);
+    color: var(--brand-color);
+    font-weight: 600;
 }
 
 .nav-links a.active::after {
@@ -119,8 +124,8 @@ img {
     bottom: -5px;
     left: 0;
     right: 0;
-    height: 2px;
-    background: var(--text-color);
+    height: 3px;
+    background: var(--brand-color);
 }
 
 /* Mobile Menu Toggle Button */
@@ -516,6 +521,17 @@ img {
         display: block;
         padding: 1rem;
         min-height: 44px;
+        transition: color var(--transition-medium), background var(--transition-medium);
+    }
+
+    .nav-links a:hover {
+        background: var(--surface-hover);
+    }
+
+    .nav-links a.active {
+        color: var(--brand-color);
+        background: var(--surface-muted);
+        font-weight: 600;
     }
     
     .nav-links a.active::after {

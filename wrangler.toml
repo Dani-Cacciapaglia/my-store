@@ -1,0 +1,279 @@
+# ⚙️ Cloudflare Workers Configuration
+# Complete configuration for deploying my-store app to Cloudflare Workers
+
+# ============================================================================
+# MAIN PROJECT CONFIGURATION
+# ============================================================================
+
+name = "my-store"
+main = "src/worker.js"
+compatibility_date = "2025-01-01"
+
+# Node.js compatibility for using npm packages like googleapis
+compatibility_flags = ["nodejs_compat"]
+
+# Schedule a daily RSS cache refresh
+triggers = { crons = ["0 3 * * *"] }
+
+# ============================================================================
+# ENVIRONMENT VARIABLES
+# ============================================================================
+# These values will be set in the Cloudflare Dashboard for each environment.
+# To set them locally for testing, use wrangler secret put VARIABLE_NAME
+
+# Development Environment
+[env.development]
+# Local development environment configuration
+vars = { ENVIRONMENT = "development", PAGES_URL = "http://localhost:8788" }
+
+# KV Namespace binding for token storage in development
+# Run locally: wrangler kv:namespace create "TOKENS" --preview
+[[env.development.kv_namespaces]]
+binding = "TOKENS"
+id = "ada60fb43e104651a8cc66e57c0cf16b"
+preview_id = "ada60fb43e104651a8cc66e57c0cf16b"
+
+# KV Namespace binding for static files in development
+# Run locally: wrangler kv:namespace create "STATIC_FILES" --preview
+[[env.development.kv_namespaces]]
+binding = "STATIC_FILES"
+id = "a056a7c66cd24425a6740be42a165aa4"
+preview_id = "a056a7c66cd24425a6740be42a165aa4"
+
+# KV Namespace binding for RSS cache in development
+# Run locally: wrangler kv:namespace create "RSS_CACHE" --preview
+[[env.development.kv_namespaces]]
+binding = "RSS_CACHE"
+id = "6ba94476cb574c158ba492e97c04aba5"
+preview_id = "6ba94476cb574c158ba492e97c04aba5"
+
+# Production Environment
+[env.production]
+# Production environment configuration
+vars = { ENVIRONMENT = "production", PAGES_URL = "https://lapapessavacanze.com" }
+routes = [
+  { pattern = "lapapessavacanze.com/auth/*", zone_name = "lapapessavacanze.com" },
+  { pattern = "lapapessavacanze.com/api/*", zone_name = "lapapessavacanze.com" },
+  { pattern = "www.lapapessavacanze.com/auth/*", zone_name = "lapapessavacanze.com" },
+  { pattern = "www.lapapessavacanze.com/api/*", zone_name = "lapapessavacanze.com" }
+]
+
+# KV Namespace binding for token storage in production
+# Run: wrangler kv:namespace create "TOKENS" (without --preview flag)
+[[env.production.kv_namespaces]]
+binding = "TOKENS"
+id = "1c2ad1c3346a433595714c6053c0cea3"
+preview_id = "ada60fb43e104651a8cc66e57c0cf16b"
+
+# KV Namespace binding for static files in production
+# Run: wrangler kv:namespace create "STATIC_FILES" (without --preview flag)
+[[env.production.kv_namespaces]]
+binding = "STATIC_FILES"
+id = "dfb2cbdec51648bf9df32eb4969ac5c7"
+preview_id = "a056a7c66cd24425a6740be42a165aa4"
+
+# KV Namespace binding for RSS cache in production
+# Run: wrangler kv:namespace create "RSS_CACHE" (without --preview flag)
+[[env.production.kv_namespaces]]
+binding = "RSS_CACHE"
+id = "7759cfcec6164c83835aeb7c13d287d1"
+preview_id = "6ba94476cb574c158ba492e97c04aba5"
+
+# ============================================================================
+# BUILD CONFIGURATION
+# ============================================================================
+
+pages_build_output_dir = "public"
+
+[build]
+command = "npm ci"
+cwd = "./"
+
+# Note: Cloudflare Pages serves static files from the public/ directory.
+# This project uses Pages for static assets and Workers for /auth/* and /api/* routes.
+# Do not add unsupported Pages fields here unless using a dedicated Pages config.
+
+# ============================================================================
+# GOOGLE CALENDAR API AUTHENTICATION
+# ============================================================================
+# These environment variables must be set in the Cloudflare Dashboard
+# or via wrangler secret put VARIABLE_NAME
+#
+# REQUIRED VARIABLES (Set these in Cloudflare Dashboard):
+#
+# 1. GOOGLE_CLIENT_ID
+#    - Source: Google Cloud Console → APIs & Services → Credentials
+#    - Format: xxxxx.apps.googleusercontent.com
+#    - Purpose: OAuth 2.0 application identifier
+#
+# 2. GOOGLE_CLIENT_SECRET
+#    - Source: Google Cloud Console → APIs & Services → Credentials
+#    - Format: GOCSPX-xxxxxxxxxxxxx (keep this SECRET)
+#    - Purpose: OAuth 2.0 authorization secret
+#    - ⚠️ SENSITIVE: Never commit this to git
+#
+# 3. GOOGLE_REDIRECT_URL
+#    - Format: https://your-workers-domain.workers.dev/auth/google/callback
+#    - Purpose: OAuth callback endpoint for token exchange
+#    - Must match exactly in Google Cloud Console
+#
+# 4. GOOGLE_ACCESS_TOKEN
+#    - Source: Generated after user authorizes in /auth/google
+#    - Purpose: Temporary token for accessing Google Calendar API
+#    - Stored in Cloudflare KV after OAuth flow
+#    - Expires: Usually 1 hour (can be refreshed)
+#
+# 5. GOOGLE_REFRESH_TOKEN
+#    - Source: Generated after user authorizes in /auth/google (offline mode)
+#    - Purpose: Long-lived token to refresh access token
+#    - Stored in Cloudflare KV after OAuth flow
+#    - ⚠️ SENSITIVE: Keep this secret
+#
+# 6. GOOGLE_CALENDAR_ID
+#    - Default: "primary" (user's main calendar)
+#    - Alternative: specific calendar email (user@gmail.com)
+#    - Purpose: Which calendar to fetch events from
+#    - Find in Google Calendar → Settings → Calendar address
+
+# ============================================================================
+# HOW TO SET ENVIRONMENT VARIABLES
+# ============================================================================
+#
+# OPTION 1: Via Cloudflare Dashboard (Recommended)
+# 1. Go to Cloudflare Dashboard → Workers & Pages → my-store
+# 2. Settings → Environment Variables
+# 3. Add each variable with its value
+# 4. Redeploy after adding variables
+#
+# OPTION 2: Using Wrangler CLI (For secrets)
+# - Development: wrangler secret put VARIABLE_NAME --env development
+# - Production: wrangler secret put VARIABLE_NAME --env production
+# 
+# OPTION 3: Local .env file (Development only)
+# Create .env.development in root:
+#   GOOGLE_CLIENT_ID=your_value
+#   GOOGLE_CLIENT_SECRET=your_value
+#   etc.
+#
+# OPTION 4: Command line (Not recommended)
+# wrangler deploy --env development --env-file .env.development
+
+# ============================================================================
+# KV NAMESPACE SETUP
+# ============================================================================
+# The TOKENS namespace stores OAuth tokens after user authorization
+#
+# To create namespaces locally:
+#   wrangler kv:namespace create "TOKENS" --preview
+#   
+# To create namespaces for production:
+#   wrangler kv:namespace create "TOKENS"
+#
+# Replace the namespace IDs below with your actual IDs from the output
+#
+# Example output:
+#   ✨ Created namespace with title "TOKENS"
+#   ID: abc123def456
+#   Preview ID: xyz789abc456
+#
+# Update the id and preview_id values in the dev/prod sections above
+
+# ============================================================================
+# ROUTES CONFIGURATION
+# ============================================================================
+# Routes define which domains trigger this Worker
+#
+# For local development: No routes needed, just run: wrangler dev
+# 
+# For production with custom domain:
+# 1. Register domain with Cloudflare (or transfer nameservers)
+# 2. Set routes in [env.production] section above
+# 3. Replace "yourdomain.com" with your actual domain
+# 4. Redeploy
+#
+# Example routes:
+#   routes = [
+#     { pattern = "yourdomain.com/*", zone_name = "yourdomain.com" },
+#     { pattern = "www.yourdomain.com/*", zone_name = "yourdomain.com" }
+#   ]
+#
+# To use Workers subdomain instead of custom domain:
+# Just deploy and use: https://my-store-XXXXX.workers.dev
+
+# ============================================================================
+# PROJECT STRUCTURE REFERENCE
+# ============================================================================
+# After conversion, your project should look like:
+#
+# my-store/
+# ├── src/
+# │   ├── worker.js           ← Main entry point (exports default handler)
+# │   ├── auth.js             ← OAuth flow handlers
+# │   ├── api.js              ← API endpoints
+# │   ├── static.js           ← Static file serving
+# │   └── utils.js            ← Shared utilities & helpers
+# ├── public/                 ← Static files (served via Cloudflare Pages)
+# │   ├── *.html
+# │   ├── css/
+# │   ├── js/
+# │   ├── images/
+# │   └── data/
+# ├── wrangler.toml           ← This file
+# ├── package.json            ← Node.js dependencies
+# ├── .env                    ← Local environment (don't commit)
+# └── REMAINING_MIGRATION_TASKS.md
+
+# ============================================================================
+# DEPLOYMENT CHECKLIST
+# ============================================================================
+#
+# Before your first deployment:
+#
+# [ ] 1. Replace all REPLACE_WITH_* placeholders above
+# [ ] 2. Set GitHub repository (for CI/CD):
+#        Settings → Connected accounts → GitHub → Authorize
+# [ ] 3. Create KV namespaces (see KV NAMESPACE SETUP above)
+# [ ] 4. Set all Google Calendar environment variables
+# [ ] 5. Test locally:
+#        npm install
+#        npm run dev
+#        Visit http://localhost:8787
+# [ ] 6. Verify all endpoints work:
+#        /auth/google
+#        /api/availability
+#        /api/availability/fallback
+# [ ] 7. Deploy to production:
+#        npm run deploy --env production
+# [ ] 8. Update Google Cloud Console with production redirect URI
+# [ ] 9. Test production OAuth flow
+# [ ] 10. Monitor logs for errors
+
+# ============================================================================
+# HELPFUL COMMANDS
+# ============================================================================
+#
+# Local development:
+#   npm run dev                          # Start local server
+#   npm run dev --env development        # With env vars
+#
+# Deployment:
+#   npm run deploy                       # Deploy to production
+#   npm run deploy --env development     # Deploy to development
+#
+# View logs:
+#   wrangler tail                        # Stream live logs
+#   wrangler tail --env production       # Logs from production
+#
+# KV management:
+#   wrangler kv:namespace list           # List KV namespaces
+#   wrangler kv:key list --namespace-id ID  # List keys in namespace
+#   wrangler kv:key get --namespace-id ID KEY  # Get specific value
+#
+# Secrets management:
+#   wrangler secret put SECRET_NAME      # Create/update secret
+#   wrangler secret delete SECRET_NAME   # Delete secret
+#   wrangler secret list                 # List all secrets
+#
+# Rollback to previous version:
+#   wrangler versions list               # See version history
+#   wrangler rollback                    # Revert to previous

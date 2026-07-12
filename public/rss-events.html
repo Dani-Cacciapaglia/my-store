@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cervia Events - RSS Feed Display</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .header {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .feed-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .feed-button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .feed-button:hover, .feed-button.active {
+            background: #0056b3;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        .event-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .event-card:hover {
+            transform: translateY(-5px);
+        }
+        .event-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .event-date {
+            color: #007bff;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        .event-description {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        .event-link {
+            display: inline-block;
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .event-link:hover {
+            text-decoration: underline;
+        }
+        .attribution {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            background: #e9ecef;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #666;
+        }
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: #dc3545;
+            background: #f8d7da;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌊 Cervia Events</h1>
+        <p>Discover events in Cervia, Milano Marittima, Pinarella & Tagliata</p>
+        <p style="font-size:0.95rem; color:#dcdce0; margin-top: 10px;">Updated once per day from Comune di Cervia RSS feeds and cached for faster page loading.</p>
+    </div>
+
+    <div class="feed-selector">
+        <button class="feed-button active" onclick="loadFeed('today')">Today's Events</button>
+        <button class="feed-button" onclick="loadFeed('all')">All Events</button>
+        <button class="feed-button" onclick="loadFeed('major')">Major Events</button>
+    </div>
+
+    <div id="loading" class="loading">Loading events...</div>
+    <div id="error" class="error" style="display: none;"></div>
+    <div id="events-container" class="events-grid"></div>
+
+    <div class="attribution">
+        📍 Events data provided by <a href="https://www.turismo.comunecervia.it" target="_blank">Comune di Cervia Tourism Office</a><br>
+        <small>Last updated: <span id="last-updated"></span></small>
+    </div>
+
+    <script>
+        // RSS Feed URLs
+        const RSS_FEEDS = {
+            today: 'https://www.turismo.comunecervia.it/it/it/eventi/manifestazioni-e-iniziative/cosa-fare-e-vedere-oggi/RSS',
+            all: 'https://www.turismo.comunecervia.it/it/eventi/manifestazioni-e-iniziative/tutti-gli-eventi/RSS',
+            major: 'https://www.turismo.comunecervia.it/it/eventi/manifestazioni-e-iniziative/I-grandi-eventi/RSS'
+        };
+
+        let currentFeed = 'today';
+
+        // Load RSS feed and parse it
+        async function loadFeed(feedType) {
+            currentFeed = feedType;
+
+            // Update button states
+            document.querySelectorAll('.feed-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('events-container').innerHTML = '';
+
+            try {
+                const response = await fetch(`/api/rss/${feedType}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                displayEvents(data.events);
+                document.getElementById('last-updated').textContent = new Date().toLocaleString();
+
+            } catch (error) {
+                console.error('Error loading RSS feed:', error);
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error').textContent = `Error loading events: ${error.message}`;
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        // Display events in the grid
+        function displayEvents(events) {
+            const container = document.getElementById('events-container');
+
+            if (events.length === 0) {
+                container.innerHTML = '<div class="event-card"><p>No events found for this category.</p></div>';
+                return;
+            }
+
+            container.innerHTML = events.map(event => `
+                <div class="event-card">
+                    <div class="event-title">${escapeHtml(event.title)}</div>
+                    <div class="event-date">${formatDate(event.date)}</div>
+                    <div class="event-description">${escapeHtml(event.description)}</div>
+                    <a href="${event.link}" target="_blank" class="event-link">Learn More →</a>
+                </div>
+            `).join('');
+        }
+
+        // Format date for display
+        function formatDate(dateString) {
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            } catch (e) {
+                return dateString;
+            }
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Load initial feed
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFeed('today');
+        });
+    </script>
+</body>
+</html>

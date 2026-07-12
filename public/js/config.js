@@ -1,16 +1,21 @@
 // Configuration for calendar API
 const CALENDAR_CONFIG = {
-    // API endpoint - change based on environment
-    API_URL: 'http://localhost:3000',
-    
-    // Fallback to local JSON if API is unavailable
+    API_URL: (() => {
+        if (typeof window === 'undefined' || !window.location) {
+            return 'http://localhost:8787';
+        }
+
+        const { hostname } = window.location;
+        if (hostname === 'localhost' || hostname === '127.0.0.1') {
+            return window.location.origin || 'http://localhost:8787';
+        }
+
+        return window.location.origin;
+    })(),
+
     USE_FALLBACK: true,
-    
-    // Enable debug logging
-    DEBUG: true,
-    
-    // Log all availability data
-    LOG_DATA: true
+    DEBUG: false,
+    LOG_DATA: false,
 };
 
 // Helper function to log if debugging is enabled
