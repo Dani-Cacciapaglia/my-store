@@ -29,7 +29,7 @@
     "googleapis": "^118.0.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240404.0",
+    "@cloudflare/workers-types": "^5.20260708.1",
     "wrangler": "^4.91.0"
   }
 }
