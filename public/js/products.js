@@ -1,48 +1,53 @@
-// Product data
+// Product data based on the current Booking.com listing
 const products = [
     {
         id: 1,
-        name: "Weekend di relax",
-        price: 80,
-        priceLabel: "80 € a persona",
-        description: "Soggiorno di 2 giorni e 1 notte ideale per una fuga tranquilla con colazione, giardino e privacy.",
-        includes: ["Colazione locale inclusa", "Wi-Fi gratuito", "Parcheggio privato"],
-        limits: ["Perfetto per 2 persone", "Silenzio obbligatorio dopo le 23:00"],
+        name: "Appartamento con 2 camere da letto",
+        priceLabel: "Tariffe variabili su Booking.com",
+        summary: "Ideale per famiglie o gruppi che cercano spazio, privacy e autonomia.",
+        meta: "Fino a 5 adulti · 2 camere · 2 bagni",
+        details: [
+            "Capienza: fino a 5 adulti.",
+            "Tipologia: 2 camere da letto con 1 letto matrimoniale large e 1 letto matrimoniale.",
+            "Servizi: cucina privata completamente attrezzata, Wi-Fi gratuito, parcheggio privato e colazione.",
+            "Tariffe: il prezzo dipende dalle date selezionate e dalla disponibilità sul sito Booking.com."
+        ],
+        rules: [
+            "Check-in: dalle 18:00 alle 19:00.",
+            "Check-out: dalle 08:00 alle 10:00.",
+            "Silenzio: dalle 23:00 alle 09:00.",
+            "Animali: non ammessi.",
+            "Fumo: vietato all'interno.",
+            "Nessuna età minima per il check-in."
+        ],
+        image: "images/products/product1.jpg",
         bookingUrl: "https://www.booking.com/hotel/it/la-papessa-savio.it.html"
     },
     {
         id: 2,
-        name: "Soggiorno esteso",
-        price: 120,
-        priceLabel: "120 € a persona",
-        description: "Tariffa pensata per 3 giorni e 2 notti, con maggiore libertà per esplorare il territorio e rilassarsi.",
-        includes: ["Colazione inclusa", "Ingresso indipendente", "Zona tranquilla"],
-        limits: ["Disponibilità da confermare in base alla stagione", "Ospiti extra non ammessi senza prenotazione"],
-        bookingUrl: "https://www.booking.com/hotel/it/la-papessa-savio.it.html"
-    },
-    {
-        id: 3,
-        name: "Notte aggiuntiva",
-        price: 60,
-        priceLabel: "60 € a persona / notte",
-        description: "Per soggiorni più lunghi, ogni notte aggiuntiva è prevista con la stessa cura e gli stessi servizi base.",
-        includes: ["Stesso comfort del soggiorno base", "Uso del giardino e delle aree comuni", "Assistenza per esigenze semplici"],
-        limits: ["Valida dal terzo giorno in poi", "Richiede conferma preventiva per eventuali ospiti aggiuntivi"],
-        bookingUrl: "https://www.booking.com/hotel/it/la-papessa-savio.it.html"
-    },
-    {
-        id: 4,
-        name: "Animali e famiglie",
-        price: 15,
-        priceLabel: "15 € ad animale / notte",
-        description: "Informazioni utili per chi viaggia con animali o con bambini, con regole chiare per un soggiorno sereno.",
-        includes: ["Accoglienza per animali piccoli", "Spazi esterni e giardino", "Disponibilità per esigenze familiari"],
-        limits: ["Animali di taglia grande non ammessi", "Bambini sotto i 12 anni devono essere dichiarati in prenotazione"],
+        name: "Appartamento con 1 camera da letto",
+        priceLabel: "Tariffe variabili su Booking.com",
+        summary: "Perfetto per coppie o soggiorni medi, con soggiorno luminoso e balcone.",
+        meta: "Fino a 4 adulti · 1 camera · balcone",
+        details: [
+            "Capienza: fino a 4 adulti.",
+            "Tipologia: 1 camera da letto con 1 letto matrimoniale large e 1 divano letto.",
+            "Servizi: bagno privato, balcone, Wi-Fi gratuito, parcheggio privato e colazione.",
+            "Tariffe: la tariffa cambia in base ai giorni, al periodo e alla disponibilità."
+        ],
+        rules: [
+            "Check-in: dalle 18:00 alle 19:00.",
+            "Check-out: dalle 08:00 alle 10:00.",
+            "Silenzio: dalle 23:00 alle 09:00.",
+            "Animali: non ammessi.",
+            "Fumo: vietato all'interno.",
+            "Bambini di tutte le età sono benvenuti, ma i maggiori di 18 anni pagano come adulti."
+        ],
+        image: "images/products/product2.jpg",
         bookingUrl: "https://www.booking.com/hotel/it/la-papessa-savio.it.html"
     }
 ];
 
-// Load products into the grid
 function loadProducts() {
     const productGrid = document.getElementById('products-grid');
 
@@ -51,30 +56,75 @@ function loadProducts() {
     productGrid.innerHTML = products.map(product => `
         <article class="feature-card">
             <div class="card-image">
-                <img src="${product.image || `images/products/product${product.id}.jpg`}" alt="${product.name}" class="product-image">
+                <img src="${product.image}" alt="${product.name}" class="product-image">
             </div>
             <div class="card-content">
+                <p class="card-eyebrow">Alloggio</p>
                 <h3>${product.name}</h3>
                 <p class="card-price">${product.priceLabel}</p>
-                <p class="card-summary">${product.description}</p>
-                <div class="card-section">
-                    <h4>Incluso</h4>
-                    <ul class="card-list">
-                        ${product.includes.map(item => `<li>${item}</li>`).join('')}
-                    </ul>
-                </div>
-                <div class="card-section">
-                    <h4>Limiti e condizioni</h4>
-                    <ul class="card-list">
-                        ${product.limits.map(item => `<li>${item}</li>`).join('')}
-                    </ul>
-                </div>
-                <a class="card-link" href="${product.bookingUrl}" target="_blank" rel="noopener noreferrer">
-                    Vedi disponibilità su Booking.com
-                </a>
+                <p class="card-summary">${product.summary}</p>
+                <p class="card-meta">${product.meta}</p>
+                <button class="card-link" type="button" data-product-id="${product.id}">
+                    Scopri dettagli e tariffe
+                </button>
             </div>
         </article>
     `).join('');
+
+    productGrid.querySelectorAll('.card-link').forEach(button => {
+        button.addEventListener('click', () => openProductDetail(Number(button.dataset.productId)));
+    });
+}
+
+function openProductDetail(id) {
+    const product = products.find(item => item.id === id);
+    const detailPanel = document.getElementById('detail-panel');
+
+    if (!product || !detailPanel) return;
+
+    detailPanel.hidden = false;
+    detailPanel.innerHTML = `
+        <div class="detail-panel-content">
+            <div class="detail-header">
+                <div>
+                    <p class="card-eyebrow">Dettagli aggiornati da Booking.com</p>
+                    <h3>${product.name}</h3>
+                </div>
+                <button class="detail-close" type="button" data-action="close">Chiudi</button>
+            </div>
+            <div class="detail-body">
+                <div class="detail-section">
+                    <h4>Tariffe</h4>
+                    <ul class="detail-list">
+                        <li>${product.details[3]}</li>
+                        <li>Per vedere il prezzo esatto, seleziona le date e verifica l'offerta su Booking.com.</li>
+                    </ul>
+                </div>
+                <div class="detail-section">
+                    <h4>Informazioni principali</h4>
+                    <ul class="detail-list">
+                        ${product.details.slice(0, 3).map(item => `<li>${item}</li>`).join('')}
+                    </ul>
+                </div>
+                <div class="detail-section">
+                    <h4>Regole e condizioni</h4>
+                    <ul class="detail-list">
+                        ${product.rules.map(item => `<li>${item}</li>`).join('')}
+                    </ul>
+                </div>
+            </div>
+            <a class="detail-booking" href="${product.bookingUrl}" target="_blank" rel="noopener noreferrer">
+                Apri l'offerta su Booking.com
+            </a>
+        </div>
+    `;
+
+    detailPanel.querySelector('[data-action="close"]').addEventListener('click', () => {
+        detailPanel.hidden = true;
+        detailPanel.innerHTML = '';
+    });
+
+    detailPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // Load products when page loads
