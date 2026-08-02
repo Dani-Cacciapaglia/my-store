@@ -2,71 +2,79 @@
 const products = [
     {
         id: 1,
-        name: "Design moderno",
-        price: 80.00,
-        description: "Arredamento ispirato al mare e organizzato in modo funzionale ",
-        image: "images/products/product1.jpg"
+        name: "Weekend di relax",
+        price: 80,
+        priceLabel: "80 € a persona",
+        description: "Soggiorno di 2 giorni e 1 notte ideale per una fuga tranquilla con colazione, giardino e privacy.",
+        includes: ["Colazione locale inclusa", "Wi-Fi gratuito", "Parcheggio privato"],
+        limits: ["Perfetto per 2 persone", "Silenzio obbligatorio dopo le 23:00"],
+        bookingUrl: "https://www.booking.com/hotel/it/la-papessa-savio.it.html"
     },
     {
         id: 2,
-        name: "Dolce risveglio",
-        price: 15.00,
-        description: "Colazioni preparate dal nostro chef giornalmente con prodotti stagionali",
-        image: "images/products/product2.jpg"
+        name: "Soggiorno esteso",
+        price: 120,
+        priceLabel: "120 € a persona",
+        description: "Tariffa pensata per 3 giorni e 2 notti, con maggiore libertà per esplorare il territorio e rilassarsi.",
+        includes: ["Colazione inclusa", "Ingresso indipendente", "Zona tranquilla"],
+        limits: ["Disponibilità da confermare in base alla stagione", "Ospiti extra non ammessi senza prenotazione"],
+        bookingUrl: "https://www.booking.com/hotel/it/la-papessa-savio.it.html"
     },
     {
         id: 3,
-        name: "Notti magiche",
-        price: 0.00,
-        description: "Materassi di alta qualità e biancheria in cotone per un sonno rigenerante",
-        image: "images/products/product3.jpg"
+        name: "Notte aggiuntiva",
+        price: 60,
+        priceLabel: "60 € a persona / notte",
+        description: "Per soggiorni più lunghi, ogni notte aggiuntiva è prevista con la stessa cura e gli stessi servizi base.",
+        includes: ["Stesso comfort del soggiorno base", "Uso del giardino e delle aree comuni", "Assistenza per esigenze semplici"],
+        limits: ["Valida dal terzo giorno in poi", "Richiede conferma preventiva per eventuali ospiti aggiuntivi"],
+        bookingUrl: "https://www.booking.com/hotel/it/la-papessa-savio.it.html"
     },
     {
         id: 4,
-        name: "Una notte due persone",
-        price: 80.00,
-        description: "Prezzo a persona con colazione inclusa",
-        image: "images/products/product4.jpg"
-    },
-    {
-        id: 5,
-        name: "Due notti due persone",
-        price: 120.00,
-        description: "Prezzo a persona con colazione inclusa",
-        image: "images/products/product5.jpg"
-    },
-    {
-        id: 6,
-        name: "Oltre due notti due persone",
-        price: 60.00,
-        description: "Prezzo a persona per ogni notte successiva alla seconda, con colazione inclusa",
-        image: "images/products/product6.jpg"
+        name: "Animali e famiglie",
+        price: 15,
+        priceLabel: "15 € ad animale / notte",
+        description: "Informazioni utili per chi viaggia con animali o con bambini, con regole chiare per un soggiorno sereno.",
+        includes: ["Accoglienza per animali piccoli", "Spazi esterni e giardino", "Disponibilità per esigenze familiari"],
+        limits: ["Animali di taglia grande non ammessi", "Bambini sotto i 12 anni devono essere dichiarati in prenotazione"],
+        bookingUrl: "https://www.booking.com/hotel/it/la-papessa-savio.it.html"
     }
 ];
 
-// Load products into the grid (updated for smaller cards)
+// Load products into the grid
 function loadProducts() {
     const productGrid = document.getElementById('products-grid');
-    
+
     if (!productGrid) return;
-    
+
     productGrid.innerHTML = products.map(product => `
-        <div class="feature-card" onclick="viewProduct(${product.id})">
+        <article class="feature-card">
             <div class="card-image">
-                <img src="${product.image}" alt="${product.name}" class="product-image">
+                <img src="${product.image || `images/products/product${product.id}.jpg`}" alt="${product.name}" class="product-image">
             </div>
             <div class="card-content">
                 <h3>${product.name}</h3>
-                <p class="card-price">€${product.price.toFixed(2)}</p>
-                <p>${product.description}</p>
+                <p class="card-price">${product.priceLabel}</p>
+                <p class="card-summary">${product.description}</p>
+                <div class="card-section">
+                    <h4>Incluso</h4>
+                    <ul class="card-list">
+                        ${product.includes.map(item => `<li>${item}</li>`).join('')}
+                    </ul>
+                </div>
+                <div class="card-section">
+                    <h4>Limiti e condizioni</h4>
+                    <ul class="card-list">
+                        ${product.limits.map(item => `<li>${item}</li>`).join('')}
+                    </ul>
+                </div>
+                <a class="card-link" href="${product.bookingUrl}" target="_blank" rel="noopener noreferrer">
+                    Vedi disponibilità su Booking.com
+                </a>
             </div>
-        </div>
+        </article>
     `).join('');
-}
-
-// View individual product
-function viewProduct(id) {
-    window.location.href = `product.html?id=${id}`;
 }
 
 // Load products when page loads

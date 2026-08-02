@@ -989,6 +989,14 @@ img {
     background: var(--surface-color);
 }
 
+.section-intro {
+    max-width: 760px;
+    margin: 0 auto 2rem;
+    text-align: center;
+    color: var(--subtext-color);
+    line-height: 1.7;
+}
+
 .cards-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -1054,11 +1062,50 @@ img {
     margin: 0;
 }
 
+.card-summary {
+    margin-top: 0.5rem !important;
+    margin-bottom: 1rem !important;
+}
+
 .card-price {
     font-size: 1.1rem !important;
     font-weight: 600 !important;
     color: #333 !important;
     margin: 0.5rem 0 !important;
+}
+
+.card-section {
+    margin-top: 0.9rem;
+}
+
+.card-section h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.45rem;
+    color: var(--text-color);
+}
+
+.card-list {
+    padding-left: 1rem;
+    margin: 0;
+}
+
+.card-list li {
+    margin-bottom: 0.35rem;
+    color: var(--subtext-color);
+    line-height: 1.5;
+}
+
+.card-link {
+    display: inline-block;
+    margin-top: 1rem;
+    font-weight: 600;
+    color: #8a5a2b;
+    text-decoration: none;
+}
+
+.card-link:hover {
+    text-decoration: underline;
 }
 
 /* Content Section Blocks */
