@@ -6,6 +6,7 @@
     <title>La Papessa | Disponibilità</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/calendar.css">
+    <link rel="stylesheet" href="css/booking.css">
 </head>
 <body>
     <header class="header-transparent">
@@ -30,101 +31,144 @@
 
     <div class="section-spacer large"></div>
 
-    <!-- Availability Section -->
-    <div class="availability-container">
-        <div class="availability-widget">
-            <!-- Header -->
-            <div class="availability-header">
+    <!-- Availability + Booking / Price Estimator Section
+         A single calendar now handles both jobs:
+           - shows which dates are free/occupied (same visual cues as before)
+           - lets the visitor pick check-in / check-out to get a price estimate
+         Barred dates are not clickable, and a range that would cross a
+         barred date is rejected with a message instead of being allowed. -->
+    <div class="booking-container">
+        <div class="booking-widget">
+            <div class="booking-header">
                 <div class="header-text">
-                    <h3>Disponibilità</h3>
+                    <h3>Disponibilità e Preventivo</h3>
+                    <p>Consulta il calendario, scegli le date libere, la sistemazione e il numero di ospiti per una stima del prezzo.</p>
                 </div>
                 <div class="header-action">
                     <a href="contact.html" class="btn-primary">Chiedi ora!</a>
                 </div>
             </div>
 
-            <!-- Calendar Container -->
-            <div class="calendar-wrapper">
-                <!-- Calendar Navigation -->
-                <div class="calendar-nav">
-                    <button 
-                        type="button" 
-                        class="nav-btn prev-btn" 
-                        aria-label="Previous month"
-                        id="prev-month">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M17.5002 11.5035H7.70715L12.3537 6.85701C12.5509 6.66377 12.5541 6.34724 12.3608 6.15004C12.1675 5.95283 11.851 5.9496 11.6538 6.14289C11.6514 6.14521 11.649 6.14759 11.6467 6.15004L6.14667 11.65C5.95136 11.8451 5.95105 12.1614 6.14612 12.3567C6.14581 12.3567 6.14624 12.3569 6.14612 12.3567L11.6467 17.857C11.8439 18.0502 12.1604 18.0471 12.3536 17.8499C12.5442 17.6555 12.5442 17.3444 12.3536 17.15L7.70715 12.5035H17.5002C17.7763 12.5035 18.0002 12.2796 18.0002 12.0035C18.0002 11.7274 17.7763 11.5035 17.5002 11.5035Z" fill="currentColor"/>
-                        </svg>
-                    </button>
-                    <div class="calendar-months" id="calendar-months">
-                        <span class="month-label" id="month1-label">December 2025</span>
-                        <span class="month-label" id="month2-label">January 2026</span>
+            <div class="booking-body">
+                <!-- Step 1: Dates -->
+                <div class="booking-step">
+                    <h4>1. Scegli le date</h4>
+                    <div class="booking-calendar-nav">
+                        <button type="button" class="nav-btn" id="booking-prev-month" aria-label="Mese precedente">‹</button>
+                        <div class="booking-calendar-months">
+                            <span class="month-label" id="booking-month1-label"></span>
+                            <span class="month-label" id="booking-month2-label"></span>
+                        </div>
+                        <button type="button" class="nav-btn" id="booking-next-month" aria-label="Mese successivo">›</button>
                     </div>
-                    <button 
-                        type="button" 
-                        class="nav-btn next-btn" 
-                        aria-label="Next month"
-                        id="next-month">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M17.8536 11.6405C17.8536 11.6404 17.8536 11.6405 17.8536 11.6405L12.3535 6.14036C12.1549 5.94852 11.8384 5.95402 11.6465 6.15263C11.4594 6.34641 11.4594 6.6536 11.6465 6.84733L16.293 11.4939H6.5C6.22388 11.4939 6 11.7178 6 11.9939C6 12.27 6.22388 12.4939 6.5 12.4939H16.293L11.6465 17.1404C11.4479 17.3322 11.4424 17.6487 11.6342 17.8473C11.826 18.046 12.1426 18.0515 12.3412 17.8597C12.3454 17.8556 12.3495 17.8515 12.3535 17.8473L17.8535 12.3473C18.0488 12.1522 18.0488 11.8357 17.8536 11.6405Z" fill="currentColor"/>
-                        </svg>
-                    </button>
-                </div>
-
-                <!-- Calendar Grids -->
-                <div class="calendar-grids" id="calendar-grids">
-                    <!-- Month 1 -->
-                    <div class="calendar-grid">
-                        <table class="calendar-table" id="calendar-month-1">
-                            <thead>
-                                <tr>
-                                    <th>Dom</th>
-                                    <th>Lun</th>
-                                    <th>Mar</th>
-                                    <th>Mer</th>
-                                    <th>Gio</th>
-                                    <th>Ven</th>
-                                    <th>Sab</th>
-                                </tr>
-                            </thead>
-                            <tbody id="calendar-body-1">
-                                <!-- Generated by JavaScript -->
-                            </tbody>
-                        </table>
+                    <div class="booking-calendar-grids">
+                        <div class="calendar-grid">
+                            <table class="calendar-table">
+                                <thead>
+                                    <tr>
+                                        <th>Dom</th><th>Lun</th><th>Mar</th><th>Mer</th><th>Gio</th><th>Ven</th><th>Sab</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="booking-calendar-body-1"></tbody>
+                            </table>
+                        </div>
+                        <div class="calendar-grid">
+                            <table class="calendar-table">
+                                <thead>
+                                    <tr>
+                                        <th>Dom</th><th>Lun</th><th>Mar</th><th>Mer</th><th>Gio</th><th>Ven</th><th>Sab</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="booking-calendar-body-2"></tbody>
+                            </table>
+                        </div>
                     </div>
 
-                    <!-- Month 2 -->
-                    <div class="calendar-grid">
-                        <table class="calendar-table" id="calendar-month-2">
-                            <thead>
-                                <tr>
-                                    <th>Dom</th>
-                                    <th>Lun</th>
-                                    <th>Mar</th>
-                                    <th>Mer</th>
-                                    <th>Gio</th>
-                                    <th>Ven</th>
-                                    <th>Sab</th>
-                                </tr>
-                            </thead>
-                            <tbody id="calendar-body-2">
-                                <!-- Generated by JavaScript -->
-                            </tbody>
-                        </table>
+                    <!-- Legend — same visual language as the old view-only calendar -->
+                    <div class="calendar-legend">
+                        <div class="legend-item">
+                            <span class="legend-box available"></span>
+                            <span>Disponibile</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-box unavailable"></span>
+                            <span>Non Disponibile</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-box selected"></span>
+                            <span>Selezionato</span>
+                        </div>
+                    </div>
+
+                    <p class="date-warning" id="date-warning"></p>
+
+                    <div class="booking-dates-summary">
+                        <div><span>Check-in:</span> <strong id="checkin-display">—</strong></div>
+                        <div><span>Check-out:</span> <strong id="checkout-display">—</strong></div>
+                        <button type="button" id="reset-dates" class="btn-secondary">Reimposta date</button>
                     </div>
                 </div>
 
-                <!-- Legend -->
-                <div class="calendar-legend">
-                    <div class="legend-item">
-                        <span class="legend-box available"></span>
-                        <span>Disponibile</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-box unavailable"></span>
-                        <span>Non Disponibile</span>
+                <!-- Step 2: Room -->
+                <div class="booking-step">
+                    <h4>2. Scegli la sistemazione</h4>
+                    <div class="room-options" id="room-options">
+                        <label class="room-card" data-room="standard">
+                            <input type="radio" name="room" value="standard" checked>
+                            <div class="room-card-content">
+                                <h5>Appartamento Ulivo</h5>
+                                <p>Fino a 4 ospiti</p>
+                                <span class="room-price">Bilocale</span>
+                            </div>
+                        </label>
+                        <label class="room-card" data-room="premium">
+                            <input type="radio" name="room" value="premium">
+                            <div class="room-card-content">
+                                <h5>Appartamento Saline</h5>
+                                <p>Fino a 5 ospiti</p>
+                                <span class="room-price">Trilocale</span>
+                            </div>
+                        </label>
                     </div>
                 </div>
+
+                <!-- Step 3: Guests -->
+                <div class="booking-step">
+                    <h4>3. Numero di ospiti</h4>
+                    <div class="guest-selectors">
+                        <div class="guest-selector">
+                            <label for="adults-count">Adulti</label>
+                            <div class="stepper">
+                                <button type="button" class="stepper-btn" data-target="adults-count" data-step="-1">−</button>
+                                <input type="number" id="adults-count" min="1" max="5" value="2" readonly>
+                                <button type="button" class="stepper-btn" data-target="adults-count" data-step="1">+</button>
+                            </div>
+                        </div>
+                        <div class="guest-selector">
+                            <label for="children-count">Bambini <span class="guest-note">(fino a 12 anni)</span></label>
+                            <div class="stepper">
+                                <button type="button" class="stepper-btn" data-target="children-count" data-step="-1">−</button>
+                                <input type="number" id="children-count" min="0" max="4" value="0" readonly>
+                                <button type="button" class="stepper-btn" data-target="children-count" data-step="1">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="guest-warning" id="guest-warning"></p>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="booking-summary" id="booking-summary">
+                <h4>Riepilogo preventivo</h4>
+                <div id="summary-content" class="summary-content">
+                    <p class="summary-placeholder">Seleziona le date, la sistemazione e gli ospiti per vedere una stima del prezzo.</p>
+                </div>
+                <div class="summary-total" id="summary-total" style="display:none;">
+                    <span>Totale stimato</span>
+                    <strong id="total-price">€0</strong>
+                </div>
+                <p class="summary-disclaimer">* Preventivo indicativo e non vincolante. Il prezzo definitivo verrà confermato in fase di prenotazione.</p>
+                <a href="contact.html" class="btn-primary" id="request-booking-btn">Richiedi disponibilità</a>
             </div>
         </div>
     </div>
@@ -158,6 +202,6 @@
 
     <script src="js/config.js"></script>
     <script src="js/main.js"></script>
-    <script src="js/calendar.js"></script>
+    <script src="js/booking.js"></script>
 </body>
 </html>

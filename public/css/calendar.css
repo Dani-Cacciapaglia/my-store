@@ -194,7 +194,9 @@
     justify-content: center;
     gap: 2rem;
     padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
     border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .legend-item {

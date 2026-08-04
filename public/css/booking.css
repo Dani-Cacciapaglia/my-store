@@ -1,0 +1,378 @@
+/* ============================================
+   AVAILABILITY + BOOKING / PRICE ESTIMATOR WIDGET
+   ============================================ */
+
+.booking-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.booking-widget {
+    background: var(--surface-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+}
+
+.booking-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    padding: 2rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.booking-header .header-text h3 {
+    font-size: 1.8rem;
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+}
+
+.booking-header .header-text p {
+    font-size: 1rem;
+    color: var(--subtext-color);
+}
+
+.booking-body {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+.booking-step h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+/* Calendar nav (reuses calendar-day/calendar-table styles from calendar.css) */
+.booking-calendar-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.booking-calendar-nav .nav-btn {
+    background: var(--surface-muted);
+    border: none;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--transition-fast);
+}
+
+.booking-calendar-nav .nav-btn:hover:not(:disabled) {
+    background: var(--surface-hover);
+}
+
+.booking-calendar-nav .nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.booking-calendar-months {
+    display: flex;
+    gap: 3rem;
+}
+
+.booking-calendar-grids {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Selectable day states, layered on top of calendar.css's .calendar-day.
+   Unavailable / disabled / today states are untouched — same visual cue
+   the old view-only calendar used. */
+.calendar-day.selectable.available {
+    cursor: pointer;
+}
+
+.calendar-day.selectable.available:hover {
+    background: var(--surface-hover);
+}
+
+.calendar-day.selected-start,
+.calendar-day.selected-end {
+    background: var(--brand-color) !important;
+    color: #fff !important;
+    font-weight: 600;
+}
+
+.calendar-day.in-range {
+    background: var(--surface-muted);
+}
+
+.booking-dates-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.95rem;
+}
+
+.booking-dates-summary span {
+    color: var(--subtext-color);
+    margin-right: 0.3rem;
+}
+
+.btn-secondary {
+    padding: 0.5rem 1.2rem;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text-color);
+    transition: background var(--transition-fast);
+    margin-left: auto;
+}
+
+.btn-secondary:hover {
+    background: var(--surface-hover);
+}
+
+/* Shown when a selected range would cross a barred date — the "operation
+   impossible" message asking the user to pick other dates. */
+.date-warning {
+    width: 100%;
+    font-size: 0.85rem;
+    color: #b91c1c;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: var(--radius-sm);
+    padding: 0.6rem 0.9rem;
+    min-height: 1.2em;
+}
+
+.date-warning:empty {
+    display: none;
+}
+
+/* Room selection cards */
+.room-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+}
+
+.room-card {
+    position: relative;
+    display: block;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.room-card input {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+.room-card:has(input:checked) {
+    border-color: var(--brand-color);
+    box-shadow: var(--shadow-soft);
+}
+
+.room-card-content h5 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    color: var(--text-color);
+}
+
+.room-card-content p {
+    font-size: 0.9rem;
+    color: var(--subtext-color);
+    margin-bottom: 0.6rem;
+}
+
+.room-price {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--brand-color);
+}
+
+/* Guest selectors */
+.guest-selectors {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.5rem;
+    margin-bottom: 1.2rem;
+}
+
+.guest-selector label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+}
+
+.guest-note {
+    font-weight: 400;
+    color: var(--subtext-color);
+    font-size: 0.8rem;
+}
+
+.stepper {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    width: fit-content;
+}
+
+.stepper-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: var(--surface-muted);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+.stepper-btn:hover {
+    background: var(--surface-hover);
+}
+
+.stepper input {
+    width: 48px;
+    text-align: center;
+    border: none;
+    border-left: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+    height: 36px;
+    font-size: 1rem;
+    -moz-appearance: textfield;
+}
+
+.stepper input::-webkit-outer-spin-button,
+.stepper input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.guest-warning {
+    font-size: 0.85rem;
+    color: #b45309;
+    min-height: 1.2em;
+}
+
+/* Summary */
+.booking-summary {
+    background: var(--surface-alt);
+    padding: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.booking-summary h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+.summary-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+}
+
+.summary-placeholder {
+    color: var(--subtext-color);
+    font-size: 0.95rem;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.95rem;
+    color: var(--text-color);
+}
+
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    margin-bottom: 1rem;
+}
+
+.summary-total span {
+    font-size: 1rem;
+    color: var(--subtext-color);
+}
+
+.summary-total strong {
+    font-size: 1.8rem;
+    color: var(--brand-color);
+}
+
+.summary-disclaimer {
+    font-size: 0.8rem;
+    color: var(--subtext-color);
+    margin-bottom: 1.2rem;
+}
+
+.disabled-link {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .booking-container {
+        padding: 0 1rem;
+    }
+
+    .booking-header,
+    .booking-body,
+    .booking-summary {
+        padding: 1.5rem;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .booking-calendar-grids {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .booking-calendar-months {
+        gap: 1rem;
+    }
+
+    .guest-selectors {
+        gap: 1.5rem;
+    }
+
+    .btn-secondary {
+        margin-left: 0;
+    }
+}
