@@ -3,7 +3,7 @@ const products = [
     {
         id: 1,
         name: "Appartamento Saline",
-        priceLabel: "A partire da 160€ per due notti.",
+        priceLabel: "A partire da 476€ per due notti.",
         summary: "Ideale per famiglie o gruppi che cercano spazio, privacy e autonomia.",
         meta: "Fino a 5 adulti · 2 camere · 2 bagni · 1 balcone",
         details: [
@@ -25,7 +25,7 @@ const products = [
     {
         id: 2,
         name: "Appartamento Ulivo",
-        priceLabel: "A partire da 120€ per due notti.",
+        priceLabel: "A partire da 238€ per due notti.",
         summary: "Perfetto per coppie o soggiorni medi, con soggiorno luminoso e balcone.",
         meta: "Fino a 4 adulti · 1 camera · balcone",
         details: [
@@ -107,6 +107,11 @@ function openProductDetail(id) {
                         ${product.rules.map(item => `<li>${item}</li>`).join('')}
                     </ul>
                 </div>
+            </div>
+            <div class="detail-actions">
+                <a class="detail-availability" href="availability.html">
+                    Verifica disponibilità
+                </a>
             </div>
         </div>
     `;

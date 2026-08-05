@@ -68,6 +68,49 @@
                         placeholder="esempio@email.com">
                 </div>
 
+                <h3>Dettagli soggiorno</h3>
+
+                <div class="form-group">
+                    <label for="arrival"> Data di arrivo </label>
+                    <input type="date"id="arrival"name="arrival">
+                </div>
+
+                <div class="form-group">
+                    <label for="departure"> Data di partenza </label>
+                    <input type="date" id="departure" name="departure">
+                </div>
+
+
+                <div class="form-group">
+                    <label for="apartment">Appartamento</label>
+                    <select id="apartment" name="apartment">
+                        <option value="">Seleziona appartamento</option>
+                        <option value="Appartamento Ulivo">Appartamento Ulivo</option>
+                        <option value="Appartamento Saline">Appartamento Saline</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="adults">Adulti</label>
+                    <input
+                        type="number"
+                        id="adults"
+                        name="adults"
+                        min="1"
+                        max="5"
+                        value="2">
+                </div>
+
+                <div class="form-group">
+                    <label for="children">Bambini</label>
+                    <input
+                        type="number"
+                        id="children"
+                        name="children"
+                        min="0"
+                        max="4"
+                        value="0">
+                </div>
                 <div class="form-group">
                     <label for="message">Messaggio *</label>
                     <textarea
@@ -77,6 +120,8 @@
                         required
                         placeholder="Facci sapere come possiamo aiutarti..."></textarea>
                 </div>
+
+<input type="hidden" id="quotation" name="quotation">
 
                 <button type="submit" class="submit-btn">Invia Messaggio</button>
 
@@ -103,14 +148,13 @@
             <div class="contact-info-card">
                 <h3>Location</h3>
                 <p>
-                    Savio di cervia <br>
-                    Emilia-Romgna<br>
-                    Italia
+                    Via Sospiri 12<br>
+                    48015 Savio(RA), Italia <br>
                 </p>
             </div>
 
             <div class="contact-info-card">
-                <h3>Orari di apertura</h3>
+                <h3>Orari di ufficio</h3>
                 <p>
                     Lunedì - Venerdì: 9.00 - 18.00<br>
                     Sabato - Domenica: 10.00 - 16.00<br>
@@ -157,9 +201,6 @@
                         <a href="mailto:contact@saviolodging.com">
                             contact@saviolodging.com
                         </a>
-                    </div>
-                    <div class="footer-rights">
-                        © 2025 La Pimpa - All rights reserved
                     </div>
                 </div>
             </div>

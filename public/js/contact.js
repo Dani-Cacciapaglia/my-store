@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+    
     const form = document.getElementById("contact-form");
     const status = document.getElementById("form-status");
 
@@ -47,4 +48,19 @@ document.addEventListener("DOMContentLoaded", () => {
             status.classList.add("error");
         }
     });
+  const bookingData = JSON.parse(sessionStorage.getItem('bookingData'));
+
+  if (bookingData) {
+    document.getElementById('arrival').value = bookingData.checkin || '';
+    document.getElementById('departure').value = bookingData.checkout || '';
+    document.getElementById('apartment').value = bookingData.apartment || '';
+    document.getElementById('adults').value = bookingData.adults || 1;
+    document.getElementById('children').value = bookingData.children || 0;
+    document.getElementById('quotation').value = bookingData.quotation || '';
+
+    const messageField = document.getElementById('message');
+    if (messageField) {
+      messageField.value = `Buongiorno, vorrei richiedere disponibilità per ${bookingData.apartment} dal ${bookingData.checkin} al ${bookingData.checkout} per ${bookingData.adults} adulti e ${bookingData.children} bambini.`;
+    }
+  }
 });

@@ -1012,8 +1012,9 @@ img {
 
 .cards-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
     gap: 2rem;
+    width: 100%;
 }
 
 .feature-card {
@@ -1163,14 +1164,21 @@ img {
     line-height: 1.5;
 }
 
-.detail-booking {
+.detail-actions {
+    margin-top: 1rem;
+}
+
+.detail-booking,
+.detail-availability {
     display: inline-block;
     font-weight: 700;
     color: #8a5a2b;
     text-decoration: none;
+    margin-right: 1.25rem;
 }
 
-.detail-booking:hover {
+.detail-booking:hover,
+.detail-availability:hover {
     text-decoration: underline;
 }
 

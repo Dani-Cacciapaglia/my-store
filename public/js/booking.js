@@ -4,139 +4,171 @@
 // the old view-only calendar used, AND doubles as the check-in / check-out
 // picker. Selecting a range that contains a blacked-out date is blocked.
 // ============================================
-
-/**
- * ============================================================================
- * PRICING CONFIG — TOKEN VALUES
- * ============================================================================
- * Edit ONLY the values in this block to change pricing — nothing else in the
- * file needs to change.
- *
- * The base tiered pricing (1 night / 2 nights / each extra night) mirrors the
- * numbers already published on products.html:
- *   - 1 night, per adult:              80
- *   - 2 nights total, per adult:       120
- *   - each night beyond the 2nd:       +60 per adult
- */
 const PRICING_CONFIG = {
-  // Two apartments. `priceMultiplier` scales the base tiered price below.
-  rooms: {
-    standard: {
-      id: 'standard',
-      name: 'Appartamento Ulivo',
-      description: 'Bilocale',
-      maxGuests: 4,
-      priceMultiplier: 1.0, // TOKEN — reference price (matches products.html tiers)
-    },
-    premium: {
-      id: 'premium',
-      name: 'Appartamento Saline',
-      description: 'Trilocale',
-      maxGuests: 5,
-      priceMultiplier: 1.35, // TOKEN — premium surcharge, adjust freely
-    },
-  },
 
-  // Seasonal multiplier applied on top of the base tiered price.
-  // Ranges use "MM-DD" and can wrap around New Year's (e.g. Nov→Mar).
-  // Order matters only for overlaps; first match wins.
-  seasons: [
-    { name: 'Alta stagione', startMD: '06-15', endMD: '09-15', multiplier: 1.3 }, // TOKEN
-    { name: 'Media stagione', startMD: '04-01', endMD: '06-14', multiplier: 1.1 }, // TOKEN
-    { name: 'Media stagione', startMD: '09-16', endMD: '10-31', multiplier: 1.1 }, // TOKEN
-    { name: 'Bassa stagione', startMD: '11-01', endMD: '03-31', multiplier: 1.0 }, // TOKEN (default/fallback)
-  ],
+    rooms: {
 
-  // Per-adult base price by stay length (mirrors products.html wording).
-  baseAdultStayPrice(nights) {
-    if (nights <= 0) return 0;
-    if (nights === 1) return 80; // TOKEN
-    if (nights === 2) return 120; // TOKEN
-    return 120 + (nights - 2) * 60; // TOKEN: +60 per adult for every extra night
-  },
+        standard: {
+            id: "standard",
+            name: "Appartamento Ulivo",
+            description: "Bilocale",
+            maxGuests: 4
+        },
 
-  childDiscount: 0.5, // TOKEN — children pay 50% of the equivalent adult price
-  childMaxAge: 12, // shown as a label only, no age verification here
-  maxChildren: 4,
+        premium: {
+            id: "premium",
+            name: "Appartamento Saline",
+            description: "Trilocale",
+            maxGuests: 5
+        }
 
-  // Kept as a token for later use — no UI field is currently wired to this.
-  // Re-enable by adding a pet input back to the HTML and wiring it in the
-  // widget class below (see the previous version of this file for reference).
-  petSurchargePerNight: 15,
+    }
+
 };
 
-/**
- * Find the seasonal multiplier for a single calendar date.
- */
-function getSeasonMultiplierForDate(date) {
-  const mm = String(date.getMonth() + 1).padStart(2, '0');
-  const dd = String(date.getDate()).padStart(2, '0');
-  const md = `${mm}-${dd}`;
+function isHighSeason(checkin, checkout) {
 
-  for (const season of PRICING_CONFIG.seasons) {
-    if (isMonthDayInRange(md, season.startMD, season.endMD)) {
-      return season.multiplier;
+    const current = new Date(checkin);
+
+    while (current < checkout) {
+
+        const month = current.getMonth() + 1;
+
+        if (month === 7 || month === 8) {
+            return true;
+        }
+
+        current.setDate(current.getDate() + 1);
     }
-  }
-  return 1.0;
-}
 
-/**
- * Compares "MM-DD" strings, correctly handling ranges that wrap over New Year.
- */
-function isMonthDayInRange(md, startMD, endMD) {
-  if (startMD <= endMD) {
-    return md >= startMD && md <= endMD;
-  }
-  // Wraps around the year end (e.g. 11-01 -> 03-31)
-  return md >= startMD || md <= endMD;
+    return false;
 }
-
-/**
- * Average seasonal multiplier across every night of the stay.
- */
-function getAverageSeasonMultiplier(checkinDate, nights) {
-  let sum = 0;
-  for (let i = 0; i < nights; i++) {
-    const d = new Date(checkinDate);
-    d.setDate(d.getDate() + i);
-    sum += getSeasonMultiplierForDate(d);
-  }
-  return nights > 0 ? sum / nights : 1;
-}
-
 /**
  * Core price calculation. Returns a breakdown object.
  */
-function calculateEstimate({ checkin, checkout, roomId, adults, children }) {
-  const nights = Math.round((checkout - checkin) / (1000 * 60 * 60 * 24));
-  const room = PRICING_CONFIG.rooms[roomId];
+function calculateEstimate({
+    checkin,
+    checkout,
+    roomId,
+    adults,
+    children
+}) {
 
-  if (!room || nights <= 0 || adults < 1) {
-    return null;
-  }
+    const nights =
+        Math.round((checkout - checkin) / (1000 * 60 * 60 * 24));
+    if (nights <= 0 || adults < 1)
+        return null;
 
-  const seasonMultiplier = getAverageSeasonMultiplier(checkin, nights);
-  const baseAdultPrice = PRICING_CONFIG.baseAdultStayPrice(nights);
+    const room = PRICING_CONFIG.rooms[roomId];
+    if (!room)
+        return null;
 
-  const adultPricePerGuest = baseAdultPrice * room.priceMultiplier * seasonMultiplier;
-  const childPricePerGuest = adultPricePerGuest * PRICING_CONFIG.childDiscount;
+    const totalGuests = adults + children;
+    const extraGuests = Math.max(0, totalGuests - 2);
+    const highSeason = isHighSeason(checkin, checkout);
 
-  const adultsTotal = adultPricePerGuest * adults;
-  const childrenTotal = childPricePerGuest * children;
+    let dailyPrice = 0;
+    let total = 0;
+    let discount = "";
+    let surcharge = "";
+    let childPricePerGuest = 0;
+    let childrenTotal = 0;
 
-  const total = adultsTotal + childrenTotal;
+    // ======================================
+    // BILOCALE - Appartamento Ulivo
+    // ======================================
+    if (roomId === "standard") {
+      // In alta stagione minimo 3 notti
+      if (highSeason && nights < 3) {
+        return {
+          unavailable: true,
+          unavailableMessage: "Minimo 3 notti in alta stagione per il bilocale."
+        };
+      }
 
-  return {
-    nights,
-    room,
-    seasonMultiplier,
-    adultPricePerGuest,
-    childPricePerGuest,
-    adultsTotal,
-    childrenTotal,
-    total,
-  };
+      const seasonMultiplier = highSeason ? 1.10 : 1.0;
+
+      // Pacchetto 6 notti (totale fisso) + costo aggiuntivo per ogni letto extra (totale)
+      if (nights >= 6) {
+        total = 650 + extraGuests * 350;
+        // applica incremento stagionale sul totale pacchetto
+        total = total * seasonMultiplier;
+        discount = "Pacchetto 6 notti";
+        childPricePerGuest = extraGuests > 0 ? 350 / nights : 0;
+        childrenTotal = childPricePerGuest * children * nights;
+      } else {
+        // calcolo giornaliero (110 base + 60 per letto extra)
+        const nightlyBase = 110 + extraGuests * 60;
+        const nightly = nightlyBase * seasonMultiplier;
+        total = nightly * nights;
+        childPricePerGuest = extraGuests > 0 ? 60 * seasonMultiplier : 0;
+        childrenTotal = childPricePerGuest * children * nights;
+      }
+
+      dailyPrice = total / nights;
+    }
+
+    // ======================================
+    // TRILOCALE - Appartamento Saline
+    // ======================================
+    else {
+      // In alta stagione minimo 3 notti
+      if (highSeason && nights < 3) {
+        return {
+          unavailable: true,
+          unavailableMessage: "Minimo 3 notti in alta stagione per il trilocale."
+        };
+      }
+
+      const seasonMultiplier = highSeason ? 1.10 : 1.0;
+
+      // Il trilocale non è prenotabile in alta stagione per massimo due ospiti
+      if (highSeason && totalGuests <= 2) {
+        return {
+          unavailable: true,
+          unavailableMessage: "Il trilocale non è disponibile per massimo due ospiti in alta stagione."
+        };
+      }
+
+      // Pacchetto 6 notti (totale fisso) per fasce ospiti
+      if (nights >= 6) {
+        if (totalGuests <= 2) {
+          total = 650;
+        } else {
+          total = 1200 + (totalGuests === 5 ? 30 * nights : 0);
+        }
+        // applica incremento stagionale sul totale pacchetto
+        total = total * seasonMultiplier;
+        discount = "Pacchetto 6 notti";
+      } else {
+        // calcolo giornaliero: 119 per la fascia fino a 2 ospiti, 229 per fasce superiori
+        const nightlyBase = totalGuests <= 2 ? 119 : 229;
+        const nightly = nightlyBase * seasonMultiplier;
+        total = nightly * nights;
+
+        // supplemento quinta persona
+        if (totalGuests === 5) {
+          total += 30 * nights;
+          surcharge = "+30 €/nt quinta persona";
+        }
+      }
+
+      dailyPrice = total / nights;
+      childPricePerGuest = 0;
+      childrenTotal = 0;
+    }
+
+    return {
+        room,
+        nights,
+        dailyPrice,
+        total,
+        discount,
+        surcharge,
+        totalGuests,
+        childPricePerGuest,
+        childrenTotal
+    };
 }
 
 function formatEUR(amount) {
@@ -187,6 +219,7 @@ class BookingEstimator {
       totalPrice: document.getElementById('total-price'),
       requestBtn: document.getElementById('request-booking-btn'),
     };
+    this.requestButtons = Array.from(document.querySelectorAll('#request-booking-btn, #request-booking-top'));
 
     if (!this.els.body1) {
       // Booking widget markup not present on this page — nothing to do.
@@ -269,6 +302,10 @@ class BookingEstimator {
         this.clampGuestsToRoom(targetId);
         this.updateSummary();
       });
+    });
+
+    this.requestButtons.forEach((button) => {
+      button.addEventListener('click', (event) => this.handleRequestBooking(event));
     });
   }
 
@@ -505,18 +542,79 @@ class BookingEstimator {
       children,
     });
 
-    if (!estimate) {
-      this.els.summaryContent.innerHTML = '<p class="summary-placeholder">Seleziona almeno una notte e un adulto.</p>';
-      this.els.summaryTotal.style.display = 'none';
-      this.setRequestLink(null);
-      return;
-    }
+if (!estimate) {
 
-    const rows = [
-      `<div class="summary-row"><span>Sistemazione</span><span>${estimate.room.name} (${estimate.room.description})</span></div>`,
-      `<div class="summary-row"><span>Periodo</span><span>${this.formatDisplayDate(this.checkin)} → ${this.formatDisplayDate(this.checkout)} (${estimate.nights} ${estimate.nights === 1 ? 'notte' : 'notti'})</span></div>`,
-      `<div class="summary-row"><span>Adulti (${adults} × ${formatEUR(estimate.adultPricePerGuest)})</span><span>${formatEUR(estimate.adultsTotal)}</span></div>`,
-    ];
+    this.els.summaryContent.innerHTML =
+        '<p class="summary-placeholder">Seleziona almeno una notte e un adulto.</p>';
+
+    this.els.summaryTotal.style.display = "none";
+
+    this.setRequestLink(null);
+
+    return;
+
+}
+
+if (estimate.unavailable) {
+    this.els.summaryContent.innerHTML = `
+        <p class="summary-placeholder">
+        ${estimate.unavailableMessage || "La selezione non è disponibile per il periodo o il numero di notti scelto."}
+        </p>
+    `;
+    this.els.summaryTotal.style.display = "none";
+    this.setRequestLink(null);
+    return;
+}
+
+const rows = [
+
+`<div class="summary-row">
+<span>Appartamento</span>
+<span>${estimate.room.name}</span>
+</div>`,
+
+`<div class="summary-row">
+<span>Notti</span>
+<span>${estimate.nights}</span>
+</div>`,
+
+`<div class="summary-row">
+<span>Ospiti</span>
+<span>${estimate.totalGuests}</span>
+</div>`,
+
+`<div class="summary-row">
+<span>Tariffa giornaliera</span>
+<span>${formatEUR(estimate.dailyPrice)}</span>
+</div>`
+
+];
+
+if (estimate.discount) {
+
+rows.push(
+
+`<div class="summary-row">
+<span>Sconto</span>
+<span>${estimate.discount}</span>
+</div>`
+
+);
+
+}
+
+if (estimate.surcharge) {
+
+rows.push(
+
+`<div class="summary-row">
+<span>Maggiorazione</span>
+<span>${estimate.surcharge}</span>
+</div>`
+
+);
+
+}
 
     if (children > 0) {
       rows.push(
@@ -530,13 +628,43 @@ class BookingEstimator {
     this.setRequestLink(estimate);
   }
 
-  setRequestLink(estimate) {
-    if (!this.els.requestBtn) return;
-    if (!estimate) {
-      this.els.requestBtn.classList.add('disabled-link');
+  handleRequestBooking(event) {
+    if (!this.checkin || !this.checkout) {
+      event.preventDefault();
       return;
     }
-    this.els.requestBtn.classList.remove('disabled-link');
+
+    const room = PRICING_CONFIG.rooms[this.selectedRoom];
+    const adults = parseInt(this.els.adultsInput.value, 10) || 0;
+    const children = parseInt(this.els.childrenInput.value, 10) || 0;
+
+    const estimate = calculateEstimate({
+      checkin: this.checkin,
+      checkout: this.checkout,
+      roomId: this.selectedRoom,
+      adults,
+      children,
+    });
+
+    const bookingData = {
+      checkin: this.formatDate(this.checkin),
+      checkout: this.formatDate(this.checkout),
+      apartment: room.name,
+      adults,
+      children,
+      quotation: estimate ? formatEUR(estimate.total) : '',
+    };
+
+    sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
+  }
+
+  setRequestLink(estimate) {
+    if (!this.requestButtons) return;
+    if (!estimate) {
+      this.requestButtons.forEach((button) => button.classList.add('disabled-link'));
+      return;
+    }
+    this.requestButtons.forEach((button) => button.classList.remove('disabled-link'));
   }
 
   normalizeDate(date) {
