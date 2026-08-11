@@ -34,7 +34,7 @@ function isHighSeason(checkin, checkout) {
 
         const month = current.getMonth() + 1;
 
-        if (month === 7 || month === 8) {
+        if (month === 6 || month === 7 || month === 8) {
             return true;
         }
 
@@ -86,7 +86,7 @@ function calculateEstimate({
         };
       }
 
-      const seasonMultiplier = highSeason ? 1.10 : 1.0;
+      const seasonMultiplier = highSeason ? 1.25 : 1.0;
 
       // Pacchetto 6 notti (totale fisso) + costo aggiuntivo per ogni letto extra (totale)
       if (nights >= 6) {

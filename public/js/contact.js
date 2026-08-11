@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const messageField = document.getElementById('message');
     if (messageField) {
-      messageField.value = `Buongiorno, vorrei richiedere disponibilità per ${bookingData.apartment} dal ${bookingData.checkin} al ${bookingData.checkout} per ${bookingData.adults} adulti e ${bookingData.children} bambini.`;
+      messageField.value = `Buongiorno, vorrei richiedere disponibilità per ${bookingData.apartment} dal ${bookingData.checkin} al ${bookingData.checkout} per ${bookingData.adults} adulti e ${bookingData.children} bambini. Prezzo stimato ${bookingData.quotation}`;
     }
   }
 });
