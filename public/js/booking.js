@@ -97,11 +97,11 @@ function calculateEstimate({
         childPricePerGuest = extraGuests > 0 ? 350 / nights : 0;
         childrenTotal = childPricePerGuest * children * nights;
       } else {
-        // calcolo giornaliero (110 base + 60 per letto extra)
-        const nightlyBase = 110 + extraGuests * 60;
-        const nightly = nightlyBase * seasonMultiplier;
+        // calcolo giornaliero (110 base + 70 per letto extra)
+        const nightlyBase = 110;
+        const nightly = nightlyBase * seasonMultiplier + extraGuests * 70;
         total = nightly * nights;
-        childPricePerGuest = extraGuests > 0 ? 60 * seasonMultiplier : 0;
+        childPricePerGuest = extraGuests > 0 ? 70 * seasonMultiplier : 0;
         childrenTotal = childPricePerGuest * children * nights;
       }
 
@@ -135,7 +135,7 @@ function calculateEstimate({
         if (totalGuests <= 2) {
           total = 650;
         } else {
-          total = 1200 + (totalGuests === 5 ? 30 * nights : 0);
+          total = 1200 + (totalGuests === 5 ? 60 * nights : 0);
         }
         // applica incremento stagionale sul totale pacchetto
         total = total * seasonMultiplier;
@@ -148,8 +148,8 @@ function calculateEstimate({
 
         // supplemento quinta persona
         if (totalGuests === 5) {
-          total += 30 * nights;
-          surcharge = "+30 €/nt quinta persona";
+          total += 60 * nights;
+          surcharge = "+60 €/nt quinta persona";
         }
       }
 
