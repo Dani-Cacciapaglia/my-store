@@ -8,8 +8,8 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
-    line-height: 1.6;
+    font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+    line-height: 1.65;
     color: var(--text-color);
     background: var(--background);
 }
@@ -250,6 +250,13 @@ img {
     width: 100%;
 }
 
+.content-wrapper .content-image {
+    width: 100%;
+    max-height: 420px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+}
+
 .rich-text-content {
     padding: 2rem 0;
 }
@@ -263,8 +270,8 @@ img {
 }
 
 .rich-text-content p {
-    font-size: 1rem;
-    line-height: 1.8;
+    font-size: 1.05rem;
+    line-height: 1.75;
     color: #555;
     margin-bottom: 1rem;
 }
@@ -375,8 +382,20 @@ img {
 }
 
 .footer-main {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 1rem;
+}
+
+.footer-main > .footer-section {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+}
+
+.footer-main > .section-spacer {
+    display: none;
 }
 
 .social-links {
@@ -402,6 +421,8 @@ img {
 }
 
 .footer-bottom {
+    grid-column: 1;
+    grid-row: 1;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -672,25 +693,26 @@ img {
 .contact-wrapper {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 1rem 2rem 2rem;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 4rem;
+    gap: 3rem;
+    align-items: start;
 }
 
 /* Contact Form */
 .contact-form-section h2,
 .contact-info-section h2 {
-    font-size: 1.8rem;
-    font-weight: 400;
-    margin-bottom: 2rem;
+    font-size: 1.55rem;
+    font-weight: 600;
+    margin-bottom: 1.4rem;
     color: #222;
 }
 
 .contact-form {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.15rem;
 }
 
 .form-group {
@@ -769,9 +791,10 @@ img {
 /* Contact Info Cards */
 .contact-info-card {
     background: var(--surface-alt);
-    padding: 1.8rem;
+    border: 1px solid var(--border-color);
+    padding: 1.4rem;
     border-radius: var(--radius-md);
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 }
 
 .contact-info-card h3 {
@@ -782,8 +805,8 @@ img {
 }
 
 .contact-info-card p {
-    font-size: 1rem;
-    line-height: 1.7;
+    font-size: 0.98rem;
+    line-height: 1.6;
     color: var(--subtext-color);
 }
 
@@ -1316,5 +1339,111 @@ img {
     
     .contact-header h1 {
         font-size: 2rem;
+    }
+}
+
+/* Final responsive refinements */
+.intro-paragraph,
+.two-column-text .column,
+.value-card p {
+    font-size: 1.02rem;
+    line-height: 1.75;
+}
+
+.contact-header p {
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.contact-wrapper {
+    gap: 3rem;
+}
+
+.contact-form-section h2,
+.contact-info-section h2 {
+    font-size: 1.55rem;
+    font-weight: 600;
+    margin-bottom: 1.4rem;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .content-wrapper {
+        padding: 0 1.25rem;
+    }
+
+    .content-wrapper .content-image {
+        max-height: 300px;
+    }
+
+    .rich-text-content {
+        padding: 1rem 0;
+    }
+
+    .rich-text-content p,
+    .intro-paragraph,
+    .two-column-text .column,
+    .value-card p {
+        font-size: 1rem;
+        line-height: 1.7;
+    }
+
+    .footer-main {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .footer-main > .footer-section,
+    .footer-bottom {
+        grid-column: 1;
+        justify-self: stretch;
+        text-align: center;
+    }
+
+    .footer-main > .footer-section {
+        grid-row: 2;
+    }
+
+    .footer-bottom {
+        grid-row: 1;
+        justify-content: center;
+    }
+
+    .social-links {
+        justify-content: center;
+    }
+
+    .contact-wrapper {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        padding: 1rem 1.25rem 2rem;
+    }
+
+    .contact-info-card {
+        padding: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .content-wrapper .content-image {
+        max-height: 240px;
+    }
+
+    .contact-header {
+        padding: 2rem 1.25rem 1rem;
+    }
+
+    .contact-header p {
+        font-size: 0.95rem;
+    }
+
+    .footer-contact {
+        flex-wrap: wrap;
+        justify-content: center;
     }
 }
