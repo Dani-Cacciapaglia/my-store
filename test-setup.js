@@ -5,8 +5,7 @@
  * Run with: node test-setup.js
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'node:fs';
 
 console.log('\n🧪 Testing Google Calendar API Setup\n');
 console.log('=====================================\n');
@@ -37,7 +36,7 @@ if (fs.existsSync('node_modules')) {
 // Test 3: Check required files
 console.log('\n3️⃣  Checking required files...');
 const requiredFiles = [
-    'src/server.js',
+    'src/worker.js',
     'package.json',
     'public/js/calendar.js',
     'public/js/config.js',
@@ -62,9 +61,7 @@ if (fs.existsSync('.env')) {
     const requiredVars = [
         'GOOGLE_CLIENT_ID',
         'GOOGLE_CLIENT_SECRET',
-        'GOOGLE_REDIRECT_URL',
-        'GOOGLE_ACCESS_TOKEN',
-        'GOOGLE_REFRESH_TOKEN'
+        'GOOGLE_REDIRECT_URL'
     ];
 
     let missingVars = [];
@@ -104,16 +101,7 @@ passed++;
 // Test 6: Test import
 console.log('\n6️⃣  Testing module imports...');
 try {
-    require('express');
-    console.log('   ✓ express module found');
-    passed++;
-} catch (e) {
-    console.log('   ✗ express module not found (run: npm install)');
-    failed++;
-}
-
-try {
-    require('googleapis');
+    await import('googleapis');
     console.log('   ✓ googleapis module found');
     passed++;
 } catch (e) {
@@ -127,8 +115,8 @@ console.log(`\n📊 Results: ${passed} passed, ${failed} failed\n`);
 
 if (failed === 0) {
     console.log('✅ All checks passed! You\'re ready to go.\n');
-    console.log('Next step: npm start');
-    console.log('Then visit: http://localhost:3000/auth/google\n');
+    console.log('Next step: npm run dev');
+    console.log('Then visit: http://localhost:8787/auth/google\n');
     process.exit(0);
 } else {
     console.log('⚠️  Fix the issues above before starting.\n');

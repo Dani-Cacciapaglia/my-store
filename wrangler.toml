@@ -113,23 +113,11 @@ cwd = "./"
 #    - ⚠️ SENSITIVE: Never commit this to git
 #
 # 3. GOOGLE_REDIRECT_URL
-#    - Format: https://your-workers-domain.workers.dev/auth/google/callback
+#    - Format: https://lapapessavacanze.com/auth/google/callback
 #    - Purpose: OAuth callback endpoint for token exchange
 #    - Must match exactly in Google Cloud Console
 #
-# 4. GOOGLE_ACCESS_TOKEN
-#    - Source: Generated after user authorizes in /auth/google
-#    - Purpose: Temporary token for accessing Google Calendar API
-#    - Stored in Cloudflare KV after OAuth flow
-#    - Expires: Usually 1 hour (can be refreshed)
-#
-# 5. GOOGLE_REFRESH_TOKEN
-#    - Source: Generated after user authorizes in /auth/google (offline mode)
-#    - Purpose: Long-lived token to refresh access token
-#    - Stored in Cloudflare KV after OAuth flow
-#    - ⚠️ SENSITIVE: Keep this secret
-#
-# 6. GOOGLE_CALENDAR_ID
+# 4. GOOGLE_CALENDAR_ID
 #    - Default: "primary" (user's main calendar)
 #    - Alternative: specific calendar email (user@gmail.com)
 #    - Purpose: Which calendar to fetch events from
@@ -140,8 +128,8 @@ cwd = "./"
 # ============================================================================
 #
 # OPTION 1: Via Cloudflare Dashboard (Recommended)
-# 1. Go to Cloudflare Dashboard → Workers & Pages → my-store
-# 2. Settings → Environment Variables
+# 1. Go to Cloudflare Dashboard → Workers & Pages → Workers → my-store → production
+# 2. Settings → Runtime variables and secrets
 # 3. Add each variable with its value
 # 4. Redeploy after adding variables
 #

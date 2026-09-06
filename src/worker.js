@@ -9,29 +9,6 @@ import { serveStaticFile, serveIndexPage } from './static.js';
 import { handleRSSFeed, prefetchRSSFeeds } from './rss.js';
 import { getCorsHeaders, sanitizeRequestPath } from './utils.js';
 
-async function handleDebugEnv(request, env) {
-  return new Response(
-    JSON.stringify({
-      processPresent: typeof process !== 'undefined',
-      processEnvGoogleClientId: typeof process?.env?.GOOGLE_CLIENT_ID === 'string',
-      processEnvGoogleClientSecret: typeof process?.env?.GOOGLE_CLIENT_SECRET === 'string',
-      processEnvGoogleRedirectUrl: typeof process?.env?.GOOGLE_REDIRECT_URL === 'string',
-      processEnvCalendarId: typeof process?.env?.GOOGLE_CALENDAR_ID === 'string',
-      envBindingGoogleClientId: typeof env?.GOOGLE_CLIENT_ID === 'string',
-      envBindingGoogleClientSecret: typeof env?.GOOGLE_CLIENT_SECRET === 'string',
-      envBindingGoogleRedirectUrl: typeof env?.GOOGLE_REDIRECT_URL === 'string',
-      envBindingCalendarId: typeof env?.GOOGLE_CALENDAR_ID === 'string',
-    }),
-    {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        ...getCorsHeaders(),
-      },
-    }
-  );
-}
-
 /**
  * REQUEST_MAPPING - Maps URL patterns to handlers
  * Format: pattern → handler function
@@ -47,7 +24,6 @@ const REQUEST_MAPPING = {
   '/api/rss/today': handleRSSFeed,
   '/api/rss/all': handleRSSFeed,
   '/api/rss/major': handleRSSFeed,
-  '/debug-env': handleDebugEnv,
 
   // Auth pages
   '/auth': 'static:auth.html',
@@ -73,13 +49,6 @@ export default {
       if (method === 'OPTIONS') {
         return new Response(null, {
           status: 204,
-          headers: getCorsHeaders(),
-        });
-      }
-
-      if (pathname === '/debug-env' && (env.DEBUG !== 'true' && env.DEBUG !== true)) {
-        return new Response('Forbidden', {
-          status: 403,
           headers: getCorsHeaders(),
         });
       }

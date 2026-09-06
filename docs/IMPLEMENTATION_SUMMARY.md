@@ -25,7 +25,7 @@ The website now uses a Cloudflare Pages frontend with Worker-based endpoints for
 
 - Added CSP and other hardening headers
 - Blocked traversal-like paths before they reach the static file handler
-- Restricted the debug endpoint so it is not exposed by default
+- Removed the environment diagnostic endpoint to avoid exposing configuration metadata
 - Reduced the amount of internal error detail returned to clients
 
 ## Remaining follow-up
@@ -38,7 +38,7 @@ The website now uses a Cloudflare Pages frontend with Worker-based endpoints for
 
 | File | Purpose |
 |------|---------|
-| `server.js` | Express backend with Google Calendar API |
+| `src/worker.js` | Cloudflare Worker entry point |
 | `package.json` | Node.js dependencies |
 | `.env.example` | Environment variables template |
 | `js/config.js` | Frontend configuration |
@@ -73,15 +73,14 @@ cp .env.example .env
 # Edit .env with your credentials
 ```
 
-### 4. **Start Server**
+### 4. **Start Worker locally**
 ```bash
-npm start
+npm run dev
 ```
 
 ### 5. **Authorize Application**
-- Visit `http://localhost:3000/auth/google`
-- Copy tokens to `.env`
-- Restart server
+- Visit `http://localhost:8787/auth/google`
+- Grant read-only calendar access
 
 ### 6. **Test**
 - Open `http://localhost:3000/availability.html`
@@ -107,11 +106,9 @@ This checks:
 # Google OAuth
 GOOGLE_CLIENT_ID=xxxx.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=xxxx
-GOOGLE_REDIRECT_URL=http://localhost:3000/auth/google/callback
+GOOGLE_REDIRECT_URL=http://localhost:8787/auth/google/callback
 
 # Google Calendar
-GOOGLE_ACCESS_TOKEN=xxxx
-GOOGLE_REFRESH_TOKEN=xxxx
 GOOGLE_CALENDAR_ID=primary
 
 # Server

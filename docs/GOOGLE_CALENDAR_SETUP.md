@@ -1,189 +1,202 @@
-# Google Calendar Setup
+# Configurazione Google Calendar
 
-The availability calendar uses Google Calendar as the source of truth and the Worker routes to fetch and cache that data.
+Il sito usa Google Calendar in sola lettura per mostrare le date non disponibili.
 
-## 1. Create a Google Cloud project
+## Valori production
 
-1. Open the Google Cloud Console.
-2. Create or select a project.
-3. Enable the Google Calendar API.
-4. Create OAuth credentials for a web application.
-
-## 2. Configure OAuth redirect URIs
-
-Add these redirect URIs in the Google Console:
-
-- Local development: `http://localhost:8787/auth/google/callback`
-- Production: `https://<your-worker-domain>.workers.dev/auth/google/callback`
-
-## 3. Set the environment variables
-
-The Worker reads these values from Cloudflare secrets or the local `.env` file:
-
-```env
-GOOGLE_CLIENT_ID=your_client_id.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=your_client_secret
-GOOGLE_REDIRECT_URL=http://localhost:8787/auth/google/callback
-GOOGLE_CALENDAR_ID=primary
-```
-
-## 4. Authorize the app
-
-Start the local preview and open:
+L'URI OAuth production deve essere identico in Google Cloud e Cloudflare:
 
 ```text
-http://localhost:8787/auth/google
+https://lapapessavacanze.com/auth/google/callback
 ```
 
-Complete the Google consent flow. The callback stores the OAuth tokens in KV (when configured) and the calendar can then read the events.
+Non usare `http`, non aggiungere una barra finale e non usare il redirect locale in production.
 
-## 5. Deploy to Cloudflare
+## 1. Abilitare Google Calendar API
 
-Store the same variables in the Cloudflare Dashboard or via Wrangler secrets.
+1. Apri [Google Cloud Console](https://console.cloud.google.com/).
+2. Seleziona il progetto nel quale creerai il client OAuth, oppure creane uno nuovo.
+3. Vai in **APIs & Services** > **Library**.
+4. Cerca **Google Calendar API** e clicca **Enable**.
+
+## 2. Configurare il consenso OAuth
+
+1. Vai in **Google Auth Platform** > **Audience**. Nelle interfacce precedenti la voce e' **APIs & Services** > **OAuth consent screen**.
+2. Scegli **External** se richiesto.
+3. Inserisci nome applicazione, email di supporto e contatto sviluppatore.
+4. In **Test users**, aggiungi:
+
+   ```text
+   cacciapagliadaniele8@gmail.com
+   ```
+
+5. Salva.
+
+Durante la fase **Testing** solo gli utenti presenti in **Test users** possono autorizzare l'applicazione.
+
+## 3. Creare il client OAuth Web
+
+Non creare un service account: il progetto usa OAuth con dati utente.
+
+1. Vai in **Google Auth Platform** > **Clients**, oppure in **APIs & Services** > **Credentials**.
+2. Clicca **Create client** o **Create credentials** > **OAuth client ID**.
+3. Seleziona **Web application**.
+4. In **Authorized redirect URIs** aggiungi:
+
+   ```text
+   https://lapapessavacanze.com/auth/google/callback
+   ```
+
+5. Se devi testare anche in locale, aggiungi separatamente:
+
+   ```text
+   http://localhost:8787/auth/google/callback
+   ```
+
+6. Crea il client e conserva **Client ID** e **Client secret**.
+
+Client ID e Client secret devono appartenere allo stesso client Web. Non inserirli nel repository o nel codice del browser.
+
+## 4. Configurare il Worker Cloudflare
+
+Il repository usa Pages per i file statici e il Worker `my-store` per `/auth/*` e `/api/*`.
+
+Nella Dashboard Cloudflare apri il servizio il cui URL termina con:
+
+```text
+/workers/services/view/my-store/production
+```
+
+Non usare `my-store-production`, che e' un servizio diverso.
+
+1. Vai in **Workers & Pages** > **Workers**.
+2. Apri `my-store` nell'ambiente `/production`.
+3. Vai in **Settings**.
+4. In **Runtime variables and secrets**, clicca **Configure API tokens and other runtime variables**.
+5. Aggiungi:
+
+   | Nome | Valore | Tipo |
+   | --- | --- | --- |
+   | `GOOGLE_CLIENT_ID` | Client ID del client Web Google | Variable |
+   | `GOOGLE_CLIENT_SECRET` | Client secret dello stesso client | Secret |
+   | `GOOGLE_REDIRECT_URL` | `https://lapapessavacanze.com/auth/google/callback` | Variable |
+   | `GOOGLE_CALENDAR_ID` | `primary` o l'ID del calendario | Variable |
+
+6. Salva le variabili.
+
+Il file `.env` locale non configura automaticamente Cloudflare.
+
+### Configurazione con Wrangler
+
+Dalla cartella del progetto puoi salvare i tre secret. I valori vengono richiesti senza essere inseriti nel comando:
 
 ```bash
-wrangler secret put GOOGLE_CLIENT_ID
-wrangler secret put GOOGLE_CLIENT_SECRET
-wrangler secret put GOOGLE_REDIRECT_URL
-wrangler secret put GOOGLE_CALENDAR_ID
+npx wrangler secret put GOOGLE_CLIENT_ID --env production
+npx wrangler secret put GOOGLE_CLIENT_SECRET --env production
+npx wrangler secret put GOOGLE_REDIRECT_URL --env production
 ```
 
-## Security recommendations
+Quando richiesto, inserisci:
 
-- Rotate the Google client secret if it was ever exposed.
-- Keep `.env` local and do not commit it.
-- Restrict the redirect URIs to the exact hosts you use.
-- Review the Worker response headers after deployment and confirm the CSP is acceptable.
-
-
-3. Check browser console for:
-   - `✓ Loaded from Google Calendar` - API is working
-   - Event dates should show as unavailable
-   - Busy slots should display with event titles on hover
-
-## Step 6: Add Events to Your Calendar
-
-1. Go to Google Calendar
-2. Create events on dates you're busy
-3. Make sure events are marked as "Busy" (default)
-4. Events marked as "Free" or "Tentative" won't show as unavailable
-
-The calendar updates in real-time as you refresh the page (every refresh pulls latest data).
-
-## How It Works
-
-```
-Google Calendar → Google Calendar API → Backend Server (Node.js) → Frontend (calendar.js)
-                                        ↓
-                                   Processes events
-                                   Extracts unavailable dates
-                                   Returns JSON
+```text
+https://lapapessavacanze.com/auth/google/callback
 ```
 
-### Event Processing Logic
+## 5. Deploy
 
-- **All-day events**: Mark the entire day as unavailable
-- **Timed events**: Mark all days the event spans as unavailable
-- **Event status**: Only events marked as "Busy" (opaque) count as unavailable
-- **Free time**: Events marked as "Free" (transparent) are ignored
+Per i file statici:
 
-## Fallback Behavior
+```bash
+npm run pages:deploy
+```
 
-If Google Calendar API is unavailable:
-1. System attempts to load from `data/availability.json`
-2. If that fails, uses hardcoded dates as fallback
-3. Calendar continues to function with stale or default data
+Per creare o aggiornare il Worker OAuth:
 
-## Deployment
+```bash
+npm run deploy:worker
+```
 
-### For Production
+Per eseguire entrambi:
 
-1. **Get a domain** and SSL certificate
-2. **Update credentials** in Google Cloud Console:
-   - Add your production URL to authorized redirect URIs
-   - Example: `https://yourdomain.com/auth/google/callback`
-3. **Update .env** with production URLs
-4. **Deploy server** to hosting (Heroku, AWS, DigitalOcean, etc.)
-5. **Update frontend** JavaScript to point to your production server URL
+```bash
+npm run deploy:all
+```
 
-### Environment Variables for Production
+## 6. Verifica
 
-```env
-GOOGLE_CLIENT_ID=production_client_id
-GOOGLE_CLIENT_SECRET=production_client_secret
-GOOGLE_REDIRECT_URL=https://yourdomain.com/auth/google/callback
-GOOGLE_ACCESS_TOKEN=production_access_token
-GOOGLE_REFRESH_TOKEN=production_refresh_token
+Controlla l'account Cloudflare autenticato:
+
+```bash
+npx wrangler whoami
+```
+
+Controlla che i secret production esistano. Il comando mostra solo nomi e tipi:
+
+```bash
+npx wrangler secret list --env production
+```
+
+Devono comparire almeno:
+
+```text
+GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET
+GOOGLE_REDIRECT_URL
+```
+
+Verifica il redirect pubblico:
+
+```bash
+curl -sS -D - -o /dev/null https://lapapessavacanze.com/auth/google
+```
+
+La risposta deve essere `302`. Nell'header `location` controlla che `client_id` sia quello esistente in Google Cloud e che `redirect_uri` sia:
+
+```text
+https://lapapessavacanze.com/auth/google/callback
+```
+
+Poi apri in Firefox una finestra anonima, accedi con `cacciapagliadaniele8@gmail.com` e visita:
+
+```text
+https://lapapessavacanze.com/auth/google
+```
+
+Accetta il permesso di lettura. Il Worker salvera' i token nel namespace KV `TOKENS`.
+
+## Problemi comuni
+
+### Accesso bloccato, errore 401, `GeneralOAuthFlow`
+
+Controlla che l'account usato sia presente in **Test users** e che il progetto OAuth sia quello corretto. Se Firefox seleziona un account diverso, usa una finestra anonima e accedi solo con l'account autorizzato.
+
+### `The OAuth client was not found` o `invalid_client`
+
+Il Worker sta usando un Client ID inesistente, eliminato o diverso da quello configurato. Verifica che il Client ID esista in Google Cloud, che il client sia di tipo **Web application**, che il secret appartenga allo stesso client e che il redirect URI coincida in Google Cloud e Cloudflare.
+
+Dopo ogni modifica esegui:
+
+```bash
+npm run deploy:worker
+```
+
+### Errore sulle variabili mancanti
+
+Le variabili devono essere configurate nel Worker `my-store/production`, non nel progetto Pages, in `my-store-production` o soltanto nel file `.env` locale.
+
+## ID del calendario
+
+Per il calendario principale usa:
+
+```text
 GOOGLE_CALENDAR_ID=primary
-PORT=3000
-NODE_ENV=production
 ```
 
-## Troubleshooting
+Per un calendario diverso, apri Google Calendar > menu del calendario > **Impostazioni e condivisione** > **Integra calendario** e copia l'**ID calendario**.
 
-### "Express not found" or module errors
-```bash
-npm install
-```
+## Sicurezza
 
-### Calendar shows "Using hardcoded fallback dates"
-- Check that `http://localhost:3000` is running
-- Check browser console for CORS errors
-- Verify tokens in .env are correct
-- Tokens may have expired; restart auth process
-
-### Events not showing as unavailable
-- Make sure events are marked as "Busy" in Google Calendar
-- Calendar processes once per page refresh
-- Check network tab in DevTools for API response
-
-### "Authorization failed"
-- Verify Client ID and Secret are correct
-- Check that redirect URI matches in Google Cloud Console
-- Try clearing browser cookies and authorizing again
-
-## Refresh Token Expiration
-
-Refresh tokens expire after 6 months of inactivity. If you see auth errors:
-
-1. Stop the server
-2. Run authorization again: `http://localhost:3000/auth/google`
-3. Update tokens in .env file
-4. Restart server
-
-## API Endpoints
-
-### GET `/api/availability`
-Returns unavailable dates and busy slots for a date range.
-
-**Query Parameters:**
-- `startDate`: ISO date string (e.g., `2026-04-01T00:00:00.000Z`)
-- `endDate`: ISO date string
-
-**Response:**
-```json
-{
-  "unavailableDates": ["2026-04-15", "2026-04-16"],
-  "busySlots": [
-    {
-      "title": "Team Meeting",
-      "startTime": "2026-04-15T10:00:00Z",
-      "endTime": "2026-04-15T11:00:00Z"
-    }
-  ],
-  "totalEvents": 5
-}
-```
-
-### GET `/auth/google`
-Returns OAuth authorization URL for initial setup.
-
-### GET `/auth/google/callback`
-OAuth callback endpoint (handled automatically).
-
-## Support
-
-For issues with:
-- **Google API**: Check [Google Calendar API docs](https://developers.google.com/calendar/api/guides/overview)
-- **Express/Node.js**: Check [Express docs](https://expressjs.com/)
-- **CORS issues**: Ensure frontend and backend are communicating properly
+- Non committare `.env`.
+- Non condividere Client secret, access token o refresh token.
+- Se una credenziale viene esposta, revocala e sostituiscila.
+- Mantieni autorizzati solo gli URI di redirect realmente utilizzati.
