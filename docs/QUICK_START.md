@@ -1,6 +1,6 @@
 # Quick Start
 
-This project now runs as a Cloudflare Pages site with Worker endpoints for the calendar API and OAuth flow.
+This project runs as a Cloudflare Pages site with Worker endpoints for the calendar API, RSS feeds, and OAuth flow.
 
 ## 1. Install dependencies
 
@@ -14,8 +14,10 @@ npm install
 Copy the example file and fill in the real values:
 
 ```bash
-cp .env.example .env
+./quick-setup.sh
 ```
+
+The script creates `.env` with owner-only permissions, never prints credential values, and rejects credential-shaped values in tracked files. Use `.env` only for local development.
 
 Required values:
 
@@ -53,7 +55,18 @@ This runs the Pages publish step and the Worker deployment step in sequence.
 
 ## Security note
 
-- Never commit `.env` or OAuth secrets
-- Rotate credentials immediately if they are ever exposed
-- Re-run `npm audit` regularly and address any remaining findings
+- Never commit `.env`, OAuth tokens, or Cloudflare credentials.
+- The Worker restricts CORS, validates OAuth `state`, and returns availability without calendar titles.
+- Set `GOOGLE_CLIENT_SECRET` and OAuth tokens as Cloudflare secrets/KV values, not browser variables.
+- Run `npm audit --audit-level=high` before deployment. The current lockfile reports zero vulnerabilities, including development dependencies.
+- The live site exposes the OAuth client ID and normal public booking/contact content. It must never expose client secrets, access tokens, refresh tokens, calendar titles, or internal error messages.
+- If a Wrangler token or OAuth credential was exposed, revoke it and create a replacement before deploying:
+
+```bash
+npx wrangler logout
+npx wrangler login
+npx wrangler secret put GOOGLE_CLIENT_SECRET --env production
+npx wrangler secret put GOOGLE_CLIENT_ID --env production
+npx wrangler secret put GOOGLE_REDIRECT_URL --env production
+```
 

@@ -1,45 +1,46 @@
-#!/bin/bash
-# Quick start script for Google Calendar integration
+#!/usr/bin/env bash
+set -Eeuo pipefail
 
-echo "🚀 My Store - Google Calendar Integration"
-echo "=========================================="
-echo ""
+cd "$(dirname "${BASH_SOURCE[0]}")"
 
-# Check if Node.js is installed
-if ! command -v node &> /dev/null; then
-    echo "❌ Node.js is not installed. Please install Node.js first."
-    echo "   Visit: https://nodejs.org/"
-    exit 1
+echo "My Store quick start"
+echo "===================="
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "ERROR: Node.js is not installed. Node.js 22 or newer is required."
+  exit 1
 fi
 
-echo "✓ Node.js detected: $(node --version)"
-echo ""
-
-# Check if .env file exists
-if [ ! -f .env ]; then
-    echo "📝 Creating .env file from template..."
-    cp .env.example .env
-    echo "⚠️  Please update .env with your Google Calendar API credentials"
-    echo "   See GOOGLE_CALENDAR_SETUP.md for detailed instructions"
-    echo ""
-else
-    echo "✓ .env file exists"
+if ! command -v npm >/dev/null 2>&1; then
+  echo "ERROR: npm is not installed."
+  exit 1
 fi
 
-# Check if node_modules exists
-if [ ! -d "node_modules" ]; then
-    echo "📦 Installing dependencies..."
+node_version="$(node --version)"
+node_major="${node_version#v}"
+node_major="${node_major%%.*}"
+if (( node_major < 22 )); then
+  echo "ERROR: Node.js 22 or newer is required; found $node_version."
+  exit 1
+fi
+echo "Node.js detected: $node_version"
+
+./quick-setup.sh
+
+if [[ ! -d node_modules ]]; then
+  echo "Installing dependencies..."
+  if [[ -f package-lock.json ]]; then
+    npm ci
+  else
     npm install
-    echo ""
+  fi
 else
-    echo "✓ Dependencies already installed"
+  echo "Dependencies already installed."
 fi
 
-echo "🎉 Ready to start!"
-echo ""
-echo "Next steps:"
-echo "1. Follow the setup guide: GOOGLE_CALENDAR_SETUP.md"
-echo "2. Update your .env file with Google API credentials"
-echo "3. Run: npm run dev"
-echo "4. Visit: http://localhost:8787/auth/google to authorize"
-echo ""
+echo "Auditing all dependencies..."
+npm audit --audit-level=high
+
+echo
+echo "Ready. Start the Worker with: npm run dev"
+echo "Open: http://localhost:8787/availability.html"

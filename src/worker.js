@@ -49,7 +49,7 @@ export default {
       if (method === 'OPTIONS') {
         return new Response(null, {
           status: 204,
-          headers: getCorsHeaders(),
+          headers: getCorsHeaders(request),
         });
       }
 
@@ -102,7 +102,7 @@ export default {
         status: 404,
         headers: {
           'Content-Type': 'text/plain',
-          ...getCorsHeaders(),
+          ...getCorsHeaders(request),
         },
       });
 
@@ -114,13 +114,12 @@ export default {
         JSON.stringify({
           error: 'Internal Server Error',
           message: 'An unexpected error occurred.',
-          path: pathname,
         }),
         {
           status: 500,
           headers: {
             'Content-Type': 'application/json',
-            ...getCorsHeaders(),
+            ...getCorsHeaders(request),
           },
         }
       );

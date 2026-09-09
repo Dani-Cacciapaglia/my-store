@@ -32,7 +32,7 @@ export async function handleRSSFeed(request, env) {
           status: 400,
           headers: {
             'Content-Type': 'application/json',
-            ...getCorsHeaders(),
+            ...getCorsHeaders(request),
           },
         }
       );
@@ -50,7 +50,7 @@ export async function handleRSSFeed(request, env) {
             headers: {
               'Content-Type': 'application/json',
               'Cache-Control': 'public, max-age=300',
-              ...getCorsHeaders(),
+              ...getCorsHeaders(request),
             },
           });
         }
@@ -63,7 +63,7 @@ export async function handleRSSFeed(request, env) {
       headers: {
         'Content-Type': 'application/json',
         'Cache-Control': 'public, max-age=300',
-        ...getCorsHeaders(),
+        ...getCorsHeaders(request),
       },
     });
 
@@ -72,14 +72,13 @@ export async function handleRSSFeed(request, env) {
     return new Response(
       JSON.stringify({
         error: 'Failed to fetch RSS feed',
-        message: error.message,
         feed: url.pathname.split('/api/rss/')[1] || 'unknown'
       }),
       {
         status: 500,
         headers: {
           'Content-Type': 'application/json',
-          ...getCorsHeaders(),
+          ...getCorsHeaders(request),
         },
       }
     );

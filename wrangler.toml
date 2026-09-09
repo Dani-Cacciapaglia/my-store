@@ -80,20 +80,6 @@ id = "7759cfcec6164c83835aeb7c13d287d1"
 preview_id = "6ba94476cb574c158ba492e97c04aba5"
 
 # ============================================================================
-# BUILD CONFIGURATION
-# ============================================================================
-
-pages_build_output_dir = "public"
-
-[build]
-command = "npm ci"
-cwd = "./"
-
-# Note: Cloudflare Pages serves static files from the public/ directory.
-# This project uses Pages for static assets and Workers for /auth/* and /api/* routes.
-# Do not add unsupported Pages fields here unless using a dedicated Pages config.
-
-# ============================================================================
 # GOOGLE CALENDAR API AUTHENTICATION
 # ============================================================================
 # These environment variables must be set in the Cloudflare Dashboard

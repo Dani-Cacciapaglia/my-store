@@ -122,6 +122,13 @@ Per eseguire entrambi:
 npm run deploy:all
 ```
 
+OAuth security requirements:
+
+- The Worker creates a one-time OAuth `state` value and stores it in KV for ten minutes.
+- The callback stores tokens in the private `TOKENS` KV namespace and never renders or logs them.
+- The public API returns unavailable dates and anonymous busy ranges; event titles are not public.
+- CORS is restricted to the production site and local development origins.
+
 ## 6. Verifica
 
 Controlla l'account Cloudflare autenticato:
@@ -178,6 +185,18 @@ Dopo ogni modifica esegui:
 
 ```bash
 npm run deploy:worker
+```
+
+### Credential exposure or local Wrangler token exposure
+
+If a client secret, access token, refresh token, or Wrangler OAuth token was ever copied into git, terminal logs, screenshots, or shared files, treat it as compromised. Revoke it in Google Cloud or Cloudflare, then issue a replacement. Deleting the text alone does not invalidate provider credentials.
+
+```bash
+npx wrangler logout
+npx wrangler login
+npx wrangler secret put GOOGLE_CLIENT_SECRET --env production
+npx wrangler secret put GOOGLE_CLIENT_ID --env production
+npx wrangler secret put GOOGLE_REDIRECT_URL --env production
 ```
 
 ### Errore sulle variabili mancanti

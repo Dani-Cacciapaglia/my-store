@@ -1,81 +1,68 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -Eeuo pipefail
 
-# Quick Setup Script for Google Calendar Integration
-# This script helps you get started quickly
+cd "$(dirname "${BASH_SOURCE[0]}")"
+umask 077
 
-echo ""
-echo "🚀 Google Calendar Integration - Quick Setup"
-echo "==========================================="
-echo ""
+echo "My Store security-aware setup"
+echo "============================"
 
-# Check if .env exists
-if [ ! -f .env ]; then
-    echo "📝 Creating .env file..."
-    cp .env.example .env
-    echo "✓ .env file created"
-else
-    echo "✓ .env file exists"
+if [[ ! -f .env.example ]]; then
+  echo "ERROR: .env.example is missing."
+  exit 1
 fi
 
-echo ""
-echo "📋 Current .env status:"
-echo ""
+if [[ ! -f .env ]]; then
+  cp .env.example .env
+  chmod 600 .env
+  echo "Created .env with owner-only permissions."
+else
+  chmod 600 .env
+  echo "Using existing .env with owner-only permissions."
+fi
 
-# Check each required variable
-check_var() {
-    local var_name=$1
-    local value=$(grep "^${var_name}=" .env | cut -d'=' -f2-)
-
-    if [ -z "$value" ] || [[ "$value" == *"your_"* ]]; then
-        echo "❌ $var_name: NEEDS CONFIGURATION"
-        return 1
-    else
-        echo "✓  $var_name: CONFIGURED"
-        return 0
-    fi
+read_env_value() {
+  local name="$1"
+  awk -F= -v key="$name" '$1 == key { sub(/^[^=]*=/, ""); print; exit }' .env
 }
 
-CLIENT_ID_OK=0
-CLIENT_SECRET_OK=0
+is_configured() {
+  local value="$1"
+  [[ -n "$value" && "$value" != *"your_"* && "$value" != *"REPLACE_WITH"* ]]
+}
 
-check_var "GOOGLE_CLIENT_ID" && CLIENT_ID_OK=1
-check_var "GOOGLE_CLIENT_SECRET" && CLIENT_SECRET_OK=1
+missing=()
+for name in GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET GOOGLE_REDIRECT_URL GOOGLE_CALENDAR_ID; do
+  value="$(read_env_value "$name")"
+  if is_configured "$value"; then
+    echo "  $name: configured"
+  else
+    echo "  $name: needs configuration"
+    missing+=("$name")
+  fi
+done
 
-echo ""
-echo "🎯 Next Steps:"
-echo ""
-
-if [ $CLIENT_ID_OK -eq 0 ] || [ $CLIENT_SECRET_OK -eq 0 ]; then
-    echo "1️⃣  GET GOOGLE CREDENTIALS:"
-    echo "   • Visit: https://console.cloud.google.com/"
-    echo "   • Create a project or select existing"
-    echo "   • Enable Google Calendar API"
-    echo "   • Create OAuth 2.0 Client ID (Web application)"
-    echo "   • Set redirect URI: http://localhost:8787/auth/google/callback"
-    echo "   • Copy Client ID and Client Secret to .env"
-    echo ""
+if git ls-files --error-unmatch .env >/dev/null 2>&1; then
+  echo "ERROR: .env is tracked by git. Remove it from git and rotate every credential it contained."
+  exit 1
 fi
 
-if [ $CLIENT_ID_OK -eq 1 ] && [ $CLIENT_SECRET_OK -eq 1 ]; then
-    echo "2️⃣  AUTHORIZE GOOGLE CALENDAR:"
-    echo "   • Run: npm run dev"
-    echo "   • Visit: http://localhost:8787/auth/google"
-    echo "   • Sign in and grant read-only calendar permission"
-    echo ""
+matches="$(git grep -nE 'GOOGLE_(CLIENT_SECRET|ACCESS_TOKEN|REFRESH_TOKEN)=[^[:space:]#]+' -- ':!quick-setup.sh' ':!quickstart.sh' 2>/dev/null | awk '$0 !~ /your_|REPLACE_WITH/ && $0 !~ /:[[:space:]]*#/' )"
+if [[ -n "$matches" ]]; then
+  echo "ERROR: credential-shaped values found in tracked files:"
+  echo "$matches"
+  exit 1
 fi
 
-echo "3️⃣  TEST INTEGRATION:"
-echo "   • Start the Worker: npm run dev"
-echo "   • Visit: http://localhost:8787/availability.html"
-echo "   • Check console for: ✓ Loaded from Google Calendar"
-echo ""
-
-if [ $CLIENT_ID_OK -eq 1 ] && [ $CLIENT_SECRET_OK -eq 1 ]; then
-    echo "✅ SETUP COMPLETE! Ready to start the Worker."
-    echo ""
-    echo "Run: npm run dev"
+echo
+if (( ${#missing[@]} > 0 )); then
+  echo "Complete the missing values in .env before starting locally."
+  echo "Production values belong in Cloudflare Worker secrets, never in this repository."
 else
-    echo "⚠️  SETUP INCOMPLETE - Follow steps above first."
+  echo "Local configuration is complete."
 fi
 
-echo ""
+echo
+echo "Local callback:  http://localhost:8787/auth/google/callback"
+echo "Production callback: https://lapapessavacanze.com/auth/google/callback"
+echo "Next: npm run dev"

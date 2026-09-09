@@ -20,7 +20,7 @@ export async function handleGoogleAuth(request, env) {
           status: 500,
           headers: {
             'Content-Type': 'application/json',
-            ...getCorsHeaders(),
+            ...getCorsHeaders(request),
           },
         }
       );
@@ -37,11 +37,21 @@ export async function handleGoogleAuth(request, env) {
           status: 500,
           headers: {
             'Content-Type': 'application/json',
-            ...getCorsHeaders(),
+            ...getCorsHeaders(request),
           },
         }
       );
     }
+
+    if (!env.TOKENS) {
+      return new Response(JSON.stringify({ error: 'OAuth storage is not configured' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(request) },
+      });
+    }
+
+    const state = crypto.randomUUID();
+    await env.TOKENS.put(`oauth_state:${state}`, 'valid', { expirationTtl: 600 });
 
     // Generate authorization URL
     const authUrl = oauth2Client.generateAuthUrl({
@@ -49,6 +59,7 @@ export async function handleGoogleAuth(request, env) {
       scope: ['https://www.googleapis.com/auth/calendar.readonly'],
       prompt: 'consent',
       redirect_uri: redirectUrl,
+      state,
     });
 
     // Redirect to Google
@@ -56,7 +67,7 @@ export async function handleGoogleAuth(request, env) {
       status: 302,
       headers: {
         Location: authUrl,
-        ...getCorsHeaders(),
+        ...getCorsHeaders(request),
       },
     });
 
@@ -83,6 +94,7 @@ export async function handleGoogleCallback(request, env) {
     const url = new URL(request.url);
     const code = url.searchParams.get('code');
     const error = url.searchParams.get('error');
+    const state = url.searchParams.get('state');
 
     // Handle OAuth error
     if (error) {
@@ -93,7 +105,7 @@ export async function handleGoogleCallback(request, env) {
           status: 400,
           headers: {
             'Content-Type': 'text/html',
-            ...getCorsHeaders(),
+            ...getCorsHeaders(request),
           },
         }
       );
@@ -107,7 +119,7 @@ export async function handleGoogleCallback(request, env) {
           status: 400,
           headers: {
             'Content-Type': 'text/html',
-            ...getCorsHeaders(),
+            ...getCorsHeaders(request),
           },
         }
       );
@@ -128,6 +140,14 @@ export async function handleGoogleCallback(request, env) {
       );
     }
 
+    if (!state || !(await env.TOKENS.get(`oauth_state:${state}`))) {
+      return new Response(getAuthErrorHtml('Authorization session expired or invalid.'), {
+        status: 400,
+        headers: { 'Content-Type': 'text/html', ...getCorsHeaders(request) },
+      });
+    }
+    await env.TOKENS.delete(`oauth_state:${state}`);
+
     // Initialize Google Calendar
     const { oauth2Client } = await initGoogleCalendar(env);
 
@@ -147,7 +167,7 @@ export async function handleGoogleCallback(request, env) {
         status: 200,
         headers: {
           'Content-Type': 'text/html',
-          ...getCorsHeaders(),
+            ...getCorsHeaders(request),
         },
       }
     );
@@ -160,7 +180,7 @@ export async function handleGoogleCallback(request, env) {
         status: 500,
         headers: {
           'Content-Type': 'text/html',
-          ...getCorsHeaders(),
+          ...getCorsHeaders(request),
         },
       }
     );
@@ -361,7 +381,7 @@ function getAuthErrorHtml(errorMessage) {
         </div>
 
         <div class="error-detail">
-            ${errorMessage}
+            Authorization could not be completed. Please try again.
         </div>
 
         <a href="/auth">Try Again</a>

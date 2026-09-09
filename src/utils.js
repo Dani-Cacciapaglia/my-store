@@ -21,10 +21,16 @@ export const REQUIRED_ENV_VARS = [
  * Standard CORS headers for Worker responses
  */
 export const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
+
+const ALLOWED_ORIGINS = new Set([
+  'https://lapapessavacanze.com',
+  'https://www.lapapessavacanze.com',
+  'http://localhost:8787',
+  'http://localhost:8788',
+]);
 
 /**
  * ============================================================================
@@ -45,13 +51,20 @@ export function getSecurityHeaders() {
   };
 }
 
-export function getCorsHeaders() {
-  return {
+export function getCorsHeaders(request = null) {
+  const headers = {
     ...getSecurityHeaders(),
-    'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Vary': 'Origin',
   };
+
+  const origin = request?.headers?.get('Origin');
+  if (origin && ALLOWED_ORIGINS.has(origin)) {
+    headers['Access-Control-Allow-Origin'] = origin;
+  }
+
+  return headers;
 }
 
 /**
@@ -328,6 +341,15 @@ export function getSafeRedirectUrl(value) {
   try {
     const parsed = new URL(value);
     if (!['http:', 'https:'].includes(parsed.protocol)) {
+      return null;
+    }
+    const allowedHosts = new Set([
+      'lapapessavacanze.com',
+      'www.lapapessavacanze.com',
+      'localhost',
+      '127.0.0.1',
+    ]);
+    if (!allowedHosts.has(parsed.hostname)) {
       return null;
     }
     return parsed.toString();

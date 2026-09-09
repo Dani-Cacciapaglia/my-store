@@ -8,7 +8,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware and CORS setup
-app.use(cors());
+app.use(cors({
+    origin: [
+        'https://lapapessavacanze.com',
+        'https://www.lapapessavacanze.com',
+        'http://localhost:3000',
+    ],
+}));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
@@ -50,7 +56,7 @@ const STATIC_FALLBACK_DATES = [
     '2025-12-24', '2025-12-25', '2025-12-26', '2025-12-27', '2025-12-31',
 ];
 
-const getAuthSuccessHtml = tokens => `
+const getAuthSuccessHtml = () => `
 <!DOCTYPE html>
 <html>
 <head>
@@ -70,24 +76,7 @@ const getAuthSuccessHtml = tokens => `
     <div class="container">
         <h1>✅ Authorization Successful!</h1>
 
-        <div class="warning">
-            <strong>⚠️ Important:</strong> Copy the tokens below and add them to your <code>.env</code> file
-        </div>
-
-        <div class="label">Access Token:</div>
-        <div class="code">${tokens.access_token}</div>
-
-        <div class="label">Refresh Token:</div>
-        <div class="code">${tokens.refresh_token}</div>
-
-        <h3>Next Steps:</h3>
-        <ol>
-            <li>Open your <code>.env</code> file</li>
-            <li>Replace <code>GOOGLE_ACCESS_TOKEN=your_access_token_here</code> with the Access Token above</li>
-            <li>Replace <code>GOOGLE_REFRESH_TOKEN=your_refresh_token_here</code> with the Refresh Token above</li>
-            <li>Save the file</li>
-            <li>Restart the server: <code>npm start</code></li>
-        </ol>
+        <p>Authorization completed. Credentials were kept on the server and were not displayed.</p>
 
         <h3>Verify it works:</h3>
         <ol>
@@ -191,10 +180,9 @@ app.get('/auth/google/callback', async (req, res) => {
         console.log('✅ AUTHORIZATION SUCCESSFUL!');
         console.log('====================================');
         console.log('\nAdd these to your .env file:\n');
-        console.log(`GOOGLE_ACCESS_TOKEN=${tokens.access_token}`);
-        console.log(`GOOGLE_REFRESH_TOKEN=${tokens.refresh_token}`);
+        console.log('OAuth credentials received; tokens were not printed.');
         console.log('\n====================================\n');
-        const htmlResponse = getAuthSuccessHtml(tokens);
+        const htmlResponse = getAuthSuccessHtml();
 
         res.send(htmlResponse);
     } catch (error) {

@@ -10,6 +10,7 @@
     "deploy:worker": "wrangler deploy --env production",
     "pages:deploy": "wrangler pages deploy public --project-name=my-store --branch=main",
     "deploy:all": "npm run pages:deploy && npm run deploy:worker",
+    "test": "node --test",
     "build": "echo 'Build not needed for Workers - static files served from KV or Pages'",
     "pages:dev": "wrangler pages dev public --compatibility-date 2025-01-01"
   },
@@ -26,10 +27,13 @@
   },
   "dependencies": {
     "dotenv": "^16.3.1",
-    "googleapis": "^118.0.0"
+    "googleapis": "^178.1.1"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260708.1",
     "wrangler": "^4.91.0"
+  },
+  "overrides": {
+    "sharp": "^0.35.4"
   }
 }

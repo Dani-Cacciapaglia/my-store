@@ -25,7 +25,7 @@ export async function handleAvailability(request, env) {
           status: 400,
           headers: {
             'Content-Type': 'application/json',
-            ...getCorsHeaders(),
+            ...getCorsHeaders(request),
           },
         }
       );
@@ -44,7 +44,7 @@ export async function handleAvailability(request, env) {
           status: 400,
           headers: {
             'Content-Type': 'application/json',
-            ...getCorsHeaders(),
+            ...getCorsHeaders(request),
           },
         }
       );
@@ -57,7 +57,7 @@ export async function handleAvailability(request, env) {
           status: 400,
           headers: {
             'Content-Type': 'application/json',
-            ...getCorsHeaders(),
+            ...getCorsHeaders(request),
           },
         }
       );
@@ -71,7 +71,7 @@ export async function handleAvailability(request, env) {
           status: 400,
           headers: {
             'Content-Type': 'application/json',
-            ...getCorsHeaders(),
+            ...getCorsHeaders(request),
           },
         }
       );
@@ -101,7 +101,6 @@ export async function handleAvailability(request, env) {
       markUnavailableDates(unavailableDates, start, end);
 
       busySlots.push({
-        title: event.summary || 'Busy',
         startTime: start.toISOString(),
         endTime: end.toISOString(),
         isAllDay: !!event.start?.date && !event.start?.dateTime,
@@ -119,7 +118,7 @@ export async function handleAvailability(request, env) {
         headers: {
           'Content-Type': 'application/json',
           'Cache-Control': 'no-cache',
-          ...getCorsHeaders(),
+          ...getCorsHeaders(request),
         },
       }
     );
@@ -129,13 +128,12 @@ export async function handleAvailability(request, env) {
     return new Response(
       JSON.stringify({
         error: 'Failed to fetch availability',
-        message: error.message,
       }),
       {
         status: 500,
         headers: {
           'Content-Type': 'application/json',
-          ...getCorsHeaders(),
+          ...getCorsHeaders(request),
         },
       }
     );
@@ -165,7 +163,7 @@ export async function handleFallbackAvailability(request, env) {
       headers: {
         'Content-Type': 'application/json',
         'Cache-Control': 'public, max-age=3600',
-        ...getCorsHeaders(),
+        ...getCorsHeaders(request),
       },
     }
   );
