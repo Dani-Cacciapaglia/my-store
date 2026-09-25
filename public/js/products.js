@@ -3,7 +3,7 @@ const products = [
     {
         id: 1,
         name: "Appartamento Saline",
-        priceLabel: "A partire da 476€ per due notti.",
+        priceLabel: "",
         summary: "Ideale per famiglie o gruppi che cercano spazio, privacy e autonomia.",
         meta: "Fino a 5 adulti · 2 camere · 2 bagni · 1 balcone",
         details: [
@@ -25,8 +25,8 @@ const products = [
     {
         id: 2,
         name: "Appartamento Ulivo",
-        priceLabel: "A partire da 238€ per due notti.",
-        summary: "Perfetto per coppie o soggiorni medi, con soggiorno luminoso e balcone.",
+        priceLabel: "",
+        summary: "Perfetto per coppie, con soggiorno luminoso e balcone.",
         meta: "Fino a 4 adulti · 1 camera · balcone",
         details: [
             "Capienza: fino a 4 adulti.",
