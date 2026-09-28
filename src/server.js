@@ -148,7 +148,7 @@ app.get('/auth/google', (req, res) => {
         });
         res.redirect(authUrl);
     } catch (error) {
-        console.error('Auth URL generation failed:', error);
+            console.error('Auth URL generation failed:', error instanceof Error ? error.message : String(error));
         res.status(500).send('OAuth configuration error. Check your .env file.');
     }
 });
@@ -186,7 +186,7 @@ app.get('/auth/google/callback', async (req, res) => {
 
         res.send(htmlResponse);
     } catch (error) {
-        console.error('Auth error:', error);
+        console.error('Auth error:', error instanceof Error ? error.message : String(error));
         res.redirect('/auth.html?error=' + encodeURIComponent(error.message));
     }
 });
@@ -213,26 +213,17 @@ app.get('/api/availability', async (req, res) => {
 
         // Extract unavailable dates (busy times)
         const unavailableDates = new Set();
-        const busySlots = [];
-
         events.forEach(event => {
             if (!isEventBusy(event)) return;
             const { start, end } = getEventRange(event);
             markUnavailableDates(unavailableDates, start, end);
-            busySlots.push({
-                title: event.summary || 'Busy',
-                startTime: event.start.dateTime || event.start.date,
-                endTime: event.end.dateTime || event.end.date,
-            });
         });
 
         res.json({
             unavailableDates: Array.from(unavailableDates),
-            busySlots: busySlots,
-            totalEvents: events.length,
         });
     } catch (error) {
-        console.error('Calendar API error:', error);
+        console.error('Calendar API error:', error instanceof Error ? error.message : String(error));
         res.status(500).json({ error: 'Failed to fetch calendar data' });
     }
 });
@@ -249,7 +240,6 @@ function formatDate(date) {
 app.get('/api/availability/fallback', (req, res) => {
     res.json({
         unavailableDates: STATIC_FALLBACK_DATES,
-        busySlots: [],
     });
 });
 app.listen(PORT, () => {

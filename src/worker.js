@@ -4,8 +4,8 @@
  */
 
 import { handleGoogleAuth, handleGoogleCallback } from './auth.js';
-import { handleAvailability, handleFallbackAvailability } from './api.js';
-import { serveStaticFile, serveIndexPage } from './static.js';
+import { handleAvailability, handleContactSubmission, handleFallbackAvailability } from './api.js';
+import { serveNotFound, serveStaticFile, serveIndexPage } from './static.js';
 import { handleRSSFeed, prefetchRSSFeeds } from './rss.js';
 import { getCorsHeaders, sanitizeRequestPath } from './utils.js';
 
@@ -21,6 +21,7 @@ const REQUEST_MAPPING = {
   // API endpoints
   '/api/availability': handleAvailability,
   '/api/availability/fallback': handleFallbackAvailability,
+  '/api/contact': handleContactSubmission,
   '/api/rss/today': handleRSSFeed,
   '/api/rss/all': handleRSSFeed,
   '/api/rss/major': handleRSSFeed,
@@ -41,9 +42,6 @@ export default {
     const pathname = sanitizeRequestPath(url.pathname) || '/';
     const method = request.method;
 
-    // Log incoming request
-    console.log(`[${method}] ${pathname}`);
-
     try {
       // Handle CORS preflight requests
       if (method === 'OPTIONS') {
@@ -51,6 +49,23 @@ export default {
           status: 204,
           headers: getCorsHeaders(request),
         });
+      }
+
+      if (pathname.startsWith('/api/') || pathname.startsWith('/auth/')) {
+        const clientId = request.headers.get('CF-Connecting-IP') || 'unknown-client';
+        if (!env.CLIENT_RATE_LIMITER) {
+          return new Response(JSON.stringify({ error: 'Request protection is not configured.' }), {
+            status: 503,
+            headers: { 'Content-Type': 'application/json; charset=utf-8', ...getCorsHeaders(request) },
+          });
+        }
+        const { success } = await env.CLIENT_RATE_LIMITER.limit({ key: `${clientId}:${pathname.startsWith('/auth/') ? 'auth' : 'api'}` });
+        if (!success) {
+          return new Response(JSON.stringify({ error: 'Too many requests. Please retry in one minute.' }), {
+            status: 429,
+            headers: { 'Content-Type': 'application/json; charset=utf-8', 'Retry-After': '60', ...getCorsHeaders(request) },
+          });
+        }
       }
 
       // Route exact path matches
@@ -76,9 +91,6 @@ export default {
         if (pathname === '/api/availability/fallback') {
           return await handleFallbackAvailability(request, env);
         }
-        if (pathname.startsWith('/api/rss/')) {
-          return await handleRSSFeed(request, env);
-        }
       }
 
       // Route static files (CSS, JS, images, etc.)
@@ -87,9 +99,13 @@ export default {
         pathname.startsWith('/js/') ||
         pathname.startsWith('/images/') ||
         pathname.startsWith('/data/') ||
-        pathname.match(/\.(css|js|jpg|jpeg|png|gif|svg|json)$/)
+        pathname.match(/\.(css|js|jpg|jpeg|png|gif|svg|json|html)$/)
       ) {
-        return serveStaticFile(pathname, env);
+        const staticResponse = await serveStaticFile(pathname, env);
+        if (staticResponse.status === 404 && !pathname.endsWith('/404.html')) {
+          return await serveNotFound(env, request);
+        }
+        return staticResponse;
       }
 
       // Serve index.html for root path
@@ -97,18 +113,18 @@ export default {
         return serveIndexPage(env);
       }
 
-      // 404 - Not Found
-      return new Response('404 - Not Found', {
-        status: 404,
-        headers: {
-          'Content-Type': 'text/plain',
-          ...getCorsHeaders(request),
-        },
-      });
+      if (pathname.startsWith('/api/')) {
+        return new Response(JSON.stringify({ error: 'Not found' }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json; charset=utf-8', ...getCorsHeaders(request) },
+        });
+      }
+
+      return await serveNotFound(env, request);
 
     } catch (error) {
       // Error handling
-      console.error(`Error processing ${pathname}:`, error);
+      console.error(`Error processing ${pathname}:`, error instanceof Error ? error.message : String(error));
       
       return new Response(
         JSON.stringify({
@@ -132,7 +148,7 @@ export default {
       await prefetchRSSFeeds(env);
       console.log('Scheduled RSS feed prefetch completed');
     } catch (error) {
-      console.error('Scheduled RSS feed prefetch failed:', error);
+      console.error('Scheduled RSS feed prefetch failed:', error instanceof Error ? error.message : String(error));
     }
   },
 };

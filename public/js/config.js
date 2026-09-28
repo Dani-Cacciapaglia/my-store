@@ -5,9 +5,12 @@ const CALENDAR_CONFIG = {
             return 'http://localhost:8787';
         }
 
-        const { hostname } = window.location;
+        const { hostname, origin, port } = window.location;
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
-            return window.location.origin || 'http://localhost:8787';
+            if (port === '8788') {
+                return `http://${hostname}:8787`;
+            }
+            return origin || 'http://localhost:8787';
         }
 
         return window.location.origin;

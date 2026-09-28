@@ -32,7 +32,7 @@ is_configured() {
 }
 
 missing=()
-for name in GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET GOOGLE_REDIRECT_URL GOOGLE_CALENDAR_ID; do
+for name in GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET GOOGLE_REDIRECT_URL GOOGLE_CALENDAR_ID_ULIVO GOOGLE_CALENDAR_ID_SALINE WEB3FORMS_ACCESS_KEY; do
   value="$(read_env_value "$name")"
   if is_configured "$value"; then
     echo "  $name: configured"
@@ -41,6 +41,13 @@ for name in GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET GOOGLE_REDIRECT_URL GOOGLE_CAL
     missing+=("$name")
   fi
 done
+
+ulivo_calendar_id="$(read_env_value GOOGLE_CALENDAR_ID_ULIVO)"
+saline_calendar_id="$(read_env_value GOOGLE_CALENDAR_ID_SALINE)"
+if is_configured "$ulivo_calendar_id" && is_configured "$saline_calendar_id" && [[ "$ulivo_calendar_id" == "$saline_calendar_id" ]]; then
+  echo "ERROR: GOOGLE_CALENDAR_ID_ULIVO and GOOGLE_CALENDAR_ID_SALINE must be different."
+  exit 1
+fi
 
 if git ls-files --error-unmatch .env >/dev/null 2>&1; then
   echo "ERROR: .env is tracked by git. Remove it from git and rotate every credential it contained."

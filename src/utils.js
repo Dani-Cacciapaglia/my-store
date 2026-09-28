@@ -157,26 +157,21 @@ export function hasValidTokens(env, tokens = null) {
  * Load OAuth tokens from Cloudflare KV or environment variables
  */
 export async function getStoredTokens(env) {
-  const access_token = getEnvValue(env, 'GOOGLE_ACCESS_TOKEN');
-  const refresh_token = getEnvValue(env, 'GOOGLE_REFRESH_TOKEN');
-
-  if (access_token && refresh_token) {
-    return { access_token, refresh_token };
-  }
-
   if (env.TOKENS) {
     const [storedAccessToken, storedRefreshToken] = await Promise.all([
       env.TOKENS.get('access_token'),
       env.TOKENS.get('refresh_token'),
     ]);
 
-    return {
-      access_token: storedAccessToken,
-      refresh_token: storedRefreshToken,
-    };
+    if (storedAccessToken && storedRefreshToken) {
+      return { access_token: storedAccessToken, refresh_token: storedRefreshToken };
+    }
   }
 
-  return { access_token: null, refresh_token: null };
+  return {
+    access_token: getEnvValue(env, 'GOOGLE_ACCESS_TOKEN') || null,
+    refresh_token: getEnvValue(env, 'GOOGLE_REFRESH_TOKEN') || null,
+  };
 }
 
 /**

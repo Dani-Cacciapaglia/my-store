@@ -190,13 +190,18 @@ class BookingEstimator {
     this.currentMonth.setDate(1);
     this.today = new Date();
     this.today.setHours(0, 0, 0, 0);
+    this.maxCalendarMonth = new Date(this.today.getFullYear(), this.today.getMonth() + 11, 1);
 
     this.apiUrl = typeof CALENDAR_CONFIG !== 'undefined' ? CALENDAR_CONFIG.API_URL : 'http://localhost:8787';
-    this.unavailableDates = new Set();
-    this.busySlots = [];
+    this.availabilityByApartment = {
+      ulivo: new Set(),
+      saline: new Set(),
+    };
+    this.availabilityReliable = false;
 
     this.checkin = null;
     this.checkout = null;
+    this.calendarFocusDate = null;
     this.selectedRoom = 'standard';
 
     this.els = {
@@ -243,7 +248,7 @@ class BookingEstimator {
   async loadAvailabilityData() {
     try {
       const startDate = new Date(this.today.getFullYear(), this.today.getMonth(), 1);
-      const endDate = new Date(this.today.getFullYear(), this.today.getMonth() + 12, 0);
+      const endDate = new Date(this.today.getFullYear(), this.today.getMonth() + 13, 0, 23, 59, 59, 999);
 
       const response = await fetch(
         `${this.apiUrl}/api/availability?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
@@ -251,9 +256,13 @@ class BookingEstimator {
 
       if (response.ok) {
         const data = await response.json();
-        if (Array.isArray(data.unavailableDates)) {
-          this.unavailableDates = new Set(data.unavailableDates);
-          this.busySlots = data.busySlots || [];
+        if (Array.isArray(data.availabilityByApartment?.ulivo) && Array.isArray(data.availabilityByApartment?.saline)) {
+          this.availabilityByApartment = {
+            ulivo: new Set(data.availabilityByApartment.ulivo),
+            saline: new Set(data.availabilityByApartment.saline),
+          };
+          this.availabilityReliable = data.source !== 'fallback';
+          this.showAvailabilitySource(data.source, data.note);
           return;
         }
       }
@@ -263,15 +272,22 @@ class BookingEstimator {
       try {
         const res = await fetch('data/availability.json');
         const data = await res.json();
-        this.unavailableDates = new Set(data.unavailableDates || []);
+        this.availabilityReliable = false;
+        this.showAvailabilitySource('fallback', 'Disponibilità non verificabile al momento. Contattaci per controllare le date.');
       } catch (fallbackErr) {
         console.error('Booking widget: could not load availability data, using hardcoded fallback', fallbackErr);
-        this.unavailableDates = new Set([
-          '2025-12-01', '2025-12-02', '2025-12-12', '2025-12-13',
-          '2025-12-24', '2025-12-25', '2025-12-26',
-        ]);
+        this.availabilityReliable = false;
+        this.showAvailabilitySource('fallback', 'Disponibilità non verificabile al momento. Contattaci per controllare le date.');
       }
     }
+  }
+
+  showAvailabilitySource(source, note = '') {
+    const message = document.getElementById('availability-source');
+    if (!message) return;
+    message.textContent = source === 'fallback'
+      ? (note || 'Disponibilità di riserva: le date sono considerate occupate per entrambi gli alloggi.')
+      : (note || '');
   }
 
   bindEvents() {
@@ -282,6 +298,7 @@ class BookingEstimator {
     this.els.roomOptions.querySelectorAll('input[name="room"]').forEach((input) => {
       input.addEventListener('change', (e) => {
         this.selectedRoom = e.target.value;
+        this.renderCalendars();
         this.clampGuestsToRoom();
         this.updateSummary();
       });
@@ -345,7 +362,10 @@ class BookingEstimator {
   }
 
   changeMonth(direction) {
-    this.currentMonth.setMonth(this.currentMonth.getMonth() + direction);
+    const nextMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() + direction, 1);
+    const firstAvailableMonth = new Date(this.today.getFullYear(), this.today.getMonth(), 1);
+    if (nextMonth < firstAvailableMonth || nextMonth > this.maxCalendarMonth) return;
+    this.currentMonth = nextMonth;
     this.renderCalendars();
   }
 
@@ -359,10 +379,12 @@ class BookingEstimator {
 
     this.renderMonth(month1, this.els.body1);
     this.renderMonth(month2, this.els.body2);
+    this.setCalendarTabStops();
 
     this.els.prevBtn.disabled =
       this.currentMonth.getMonth() === this.today.getMonth() &&
       this.currentMonth.getFullYear() === this.today.getFullYear();
+    this.els.nextBtn.disabled = this.currentMonth >= this.maxCalendarMonth;
 
     this.els.checkinDisplay.textContent = this.checkin ? this.formatDisplayDate(this.checkin) : '—';
     this.els.checkoutDisplay.textContent = this.checkout ? this.formatDisplayDate(this.checkout) : '—';
@@ -419,34 +441,60 @@ class BookingEstimator {
    * clickable so this same calendar drives the check-in/check-out picker.
    */
   createDayCell(day, date, isOutsideMonth) {
-    const div = document.createElement('div');
-    div.className = 'calendar-day';
-    div.textContent = day;
-
     const cellDate = this.normalizeDate(date);
     const dateString = this.formatDate(cellDate);
     const isPast = cellDate < this.today;
-    const isUnavailable = this.unavailableDates.has(dateString);
+    const roomDates = {
+      standard: this.availabilityByApartment.ulivo,
+      premium: this.availabilityByApartment.saline,
+    };
+    const isUlivoUnavailable = this.availabilityByApartment.ulivo.has(dateString);
+    const isSalineUnavailable = this.availabilityByApartment.saline.has(dateString);
+    const isUnavailable = roomDates[this.selectedRoom].has(dateString);
+    const isAvailabilityUnknown = !this.availabilityReliable;
+    const isSelectable = !isPast && !isUnavailable && !isAvailabilityUnknown;
+    const div = document.createElement(isSelectable ? 'button' : 'span');
+    div.className = 'calendar-day';
+    div.dataset.date = dateString;
+
+    const dayNumber = document.createElement('span');
+    dayNumber.className = 'calendar-day-number';
+    dayNumber.textContent = day;
+    div.appendChild(dayNumber);
+
+    const indicators = document.createElement('span');
+    indicators.className = 'calendar-day-indicators';
+    indicators.setAttribute('aria-hidden', 'true');
+    [['ulivo', isUlivoUnavailable], ['saline', isSalineUnavailable]].forEach(([apartment, occupied]) => {
+      const indicator = document.createElement('span');
+      indicator.className = `calendar-day-indicator indicator-${apartment}${occupied ? ' is-occupied' : ''}`;
+      indicators.appendChild(indicator);
+    });
+    div.appendChild(indicators);
+
+    const ulivoStatus = isAvailabilityUnknown ? 'non verificabile' : isUlivoUnavailable ? 'occupato' : 'disponibile';
+    const salineStatus = isAvailabilityUnknown ? 'non verificabile' : isSalineUnavailable ? 'occupato' : 'disponibile';
+    if (isAvailabilityUnknown) indicators.querySelectorAll('.calendar-day-indicator').forEach(indicator => indicator.classList.add('is-unknown'));
+    div.setAttribute('aria-label', `${cellDate.toLocaleDateString('it-IT')}: Ulivo ${ulivoStatus}, Saline ${salineStatus}`);
 
     if (isOutsideMonth) div.classList.add('outside-month');
     if (this.isSameDate(cellDate, this.today)) div.classList.add('today');
 
-    if (isPast || isUnavailable) {
+    if (!isSelectable) {
       // Same visual cue the view-only calendar used: 'unavailable' draws the
       // diagonal strike-through, 'disabled' greys out past days.
-      div.classList.add(isUnavailable ? 'unavailable' : 'disabled');
-      if (isUnavailable) {
-        const busyEvent = this.busySlots.find(
-          (slot) => this.formatDate(new Date(slot.startTime)) === dateString
-        );
-        if (busyEvent) {
-          div.setAttribute('title', `Occupato: ${busyEvent.title}`);
-        }
-      }
-      // Not clickable — matches "barred dates are not selectable".
+      div.classList.add(isAvailabilityUnknown ? 'disabled' : isUnavailable ? 'unavailable' : 'disabled');
     } else {
       div.classList.add('available', 'selectable');
+      div.type = 'button';
+      div.setAttribute('aria-label', `${cellDate.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}: Ulivo ${ulivoStatus}, Saline ${salineStatus}`);
+      div.setAttribute('aria-pressed', String(Boolean(
+        (this.checkin && this.isSameDate(cellDate, this.checkin)) ||
+        (this.checkout && this.isSameDate(cellDate, this.checkout))
+      )));
+      div.tabIndex = -1;
       div.addEventListener('click', () => this.handleDateClick(cellDate));
+      div.addEventListener('keydown', (event) => this.handleCalendarKeydown(event, cellDate));
     }
 
     if (this.checkin && this.isSameDate(cellDate, this.checkin)) {
@@ -462,13 +510,59 @@ class BookingEstimator {
     return div;
   }
 
+  setCalendarTabStops() {
+    const days = Array.from(document.querySelectorAll('.calendar-day.selectable'));
+    const activeDay = days.find((day) => day.dataset.date === this.calendarFocusDate) || days[0];
+    days.forEach((day) => { day.tabIndex = day === activeDay ? 0 : -1; });
+  }
+
+  handleCalendarKeydown(event, date) {
+    const dayOffsets = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 };
+    const offset = dayOffsets[event.key];
+    if (!offset) return;
+
+    event.preventDefault();
+    const targetDate = new Date(date);
+    let target = null;
+
+    for (let step = 0; step < 120 && !target; step++) {
+      targetDate.setDate(targetDate.getDate() + offset);
+      if (targetDate < this.today) return;
+      const maxSelectableDate = new Date(this.maxCalendarMonth.getFullYear(), this.maxCalendarMonth.getMonth() + 2, 0);
+      if (targetDate > maxSelectableDate) return;
+
+      const targetString = this.formatDate(targetDate);
+      target = Array.from(document.querySelectorAll('.calendar-day.selectable'))
+        .find((day) => day.dataset.date === targetString);
+
+      const lastVisibleDate = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() + 2, 0);
+      if (!target && (targetDate < this.currentMonth || targetDate > lastVisibleDate)) {
+        this.currentMonth = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1);
+        this.renderCalendars();
+      }
+    }
+    if (!target) return;
+
+    this.calendarFocusDate = target.dataset.date;
+    this.setCalendarTabStops();
+    target.focus();
+  }
+
+  restoreCalendarFocus() {
+    const target = Array.from(document.querySelectorAll('.calendar-day.selectable'))
+      .find((day) => day.dataset.date === this.calendarFocusDate);
+    target?.focus();
+  }
+
   handleDateClick(date) {
+    this.calendarFocusDate = this.formatDate(date);
     if (!this.checkin || (this.checkin && this.checkout)) {
       // Start a new selection
       this.checkin = date;
       this.checkout = null;
       this.clearDateWarning();
       this.renderCalendars();
+      this.restoreCalendarFocus();
       this.updateSummary();
       return;
     }
@@ -480,6 +574,7 @@ class BookingEstimator {
       this.checkout = null;
       this.clearDateWarning();
       this.renderCalendars();
+      this.restoreCalendarFocus();
       this.updateSummary();
       return;
     }
@@ -497,13 +592,18 @@ class BookingEstimator {
     this.checkout = date;
     this.clearDateWarning();
     this.renderCalendars();
+    this.restoreCalendarFocus();
     this.updateSummary();
   }
 
   rangeHasUnavailableDate(checkin, checkout) {
+    if (!this.availabilityReliable) return true;
     const cursor = new Date(checkin);
     while (cursor < checkout) {
-      if (this.unavailableDates.has(this.formatDate(cursor))) {
+      const selectedDates = this.selectedRoom === 'standard'
+        ? this.availabilityByApartment.ulivo
+        : this.availabilityByApartment.saline;
+      if (selectedDates.has(this.formatDate(cursor))) {
         return true;
       }
       cursor.setDate(cursor.getDate() + 1);
@@ -530,7 +630,6 @@ class BookingEstimator {
     if (!this.checkin || !this.checkout) {
       this.els.summaryContent.innerHTML = '<p class="summary-placeholder">Seleziona le date, la sistemazione e gli ospiti per vedere una stima del prezzo.</p>';
       this.els.summaryTotal.style.display = 'none';
-      this.setRequestLink(null);
       return;
     }
 
@@ -549,8 +648,6 @@ if (!estimate) {
 
     this.els.summaryTotal.style.display = "none";
 
-    this.setRequestLink(null);
-
     return;
 
 }
@@ -562,7 +659,6 @@ if (estimate.unavailable) {
         </p>
     `;
     this.els.summaryTotal.style.display = "none";
-    this.setRequestLink(null);
     return;
 }
 
@@ -625,12 +721,10 @@ rows.push(
     this.els.summaryContent.innerHTML = rows.join('');
     this.els.summaryTotal.style.display = 'flex';
     this.els.totalPrice.textContent = formatEUR(estimate.total);
-    this.setRequestLink(estimate);
   }
 
-  handleRequestBooking(event) {
+  handleRequestBooking() {
     if (!this.checkin || !this.checkout) {
-      event.preventDefault();
       return;
     }
 
@@ -638,33 +732,15 @@ rows.push(
     const adults = parseInt(this.els.adultsInput.value, 10) || 0;
     const children = parseInt(this.els.childrenInput.value, 10) || 0;
 
-    const estimate = calculateEstimate({
-      checkin: this.checkin,
-      checkout: this.checkout,
-      roomId: this.selectedRoom,
-      adults,
-      children,
-    });
-
     const bookingData = {
       checkin: this.formatDate(this.checkin),
       checkout: this.formatDate(this.checkout),
       apartment: room.name,
       adults,
       children,
-      quotation: estimate ? formatEUR(estimate.total) : '',
     };
 
     sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
-  }
-
-  setRequestLink(estimate) {
-    if (!this.requestButtons) return;
-    if (!estimate) {
-      this.requestButtons.forEach((button) => button.classList.add('disabled-link'));
-      return;
-    }
-    this.requestButtons.forEach((button) => button.classList.remove('disabled-link'));
   }
 
   normalizeDate(date) {

@@ -134,7 +134,9 @@ Set up Google OAuth for Calendar API:
    - `GOOGLE_CLIENT_ID`
    - `GOOGLE_CLIENT_SECRET`
    - `GOOGLE_REDIRECT_URL`
-   - `GOOGLE_CALENDAR_ID`
+   - `GOOGLE_CALENDAR_ID_ULIVO`
+   - `GOOGLE_CALENDAR_ID_SALINE`
+   - `WEB3FORMS_ACCESS_KEY` (rotated secret)
 6. Confirm Pages serves static files while Workers handles `/auth/*` and `/api/*`.
 
 **Optimized Prompt:**
@@ -161,14 +163,18 @@ Configure Cloudflare Pages for static assets and hybrid Worker routing:
    - GOOGLE_CLIENT_ID (from Task 4)
    - GOOGLE_CLIENT_SECRET (from Task 4)
    - GOOGLE_REDIRECT_URL (matches Google Console)
-   - GOOGLE_CALENDAR_ID (usually "primary")
+   - GOOGLE_CALENDAR_ID_ULIVO (calendar for Appartamento Ulivo)
+   - GOOGLE_CALENDAR_ID_SALINE (calendar for Appartamento Saline)
+   - WEB3FORMS_ACCESS_KEY (rotated Web3Forms key)
 
 **Using Wrangler CLI:**
 ```bash
 wrangler secret put GOOGLE_CLIENT_ID
 wrangler secret put GOOGLE_CLIENT_SECRET
 wrangler secret put GOOGLE_REDIRECT_URL
-wrangler secret put GOOGLE_CALENDAR_ID
+npx wrangler secret put GOOGLE_CALENDAR_ID_ULIVO --env production
+npx wrangler secret put GOOGLE_CALENDAR_ID_SALINE --env production
+npx wrangler secret put WEB3FORMS_ACCESS_KEY --env production
 ```
 
 **Optimized Prompt:**
@@ -180,8 +186,7 @@ Set Cloudflare environment variables:
 4. wrangler secret put GOOGLE_REDIRECT_URL
    - Dev: http://localhost:8787/auth/google/callback
    - Prod: https://my-store.your-subdomain.workers.dev/auth/google/callback
-5. wrangler secret put GOOGLE_CALENDAR_ID
-   - Value: primary (or your calendar ID)
+5. Set distinct apartment calendar IDs and the rotated Web3Forms key in Worker production secrets.
 ```
 
 ---

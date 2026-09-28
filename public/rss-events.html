@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>La Papessa | Feed RSS</title>
+    <link rel="stylesheet" href="css/style.css">
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
@@ -14,7 +15,7 @@
         }
         .header {
             text-align: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #164a45 0%, #236b5e 100%);
             color: white;
             padding: 40px 20px;
             border-radius: 10px;
@@ -28,7 +29,7 @@
         }
         .feed-button {
             padding: 10px 20px;
-            background: #007bff;
+            background: #0056b3;
             color: white;
             border: none;
             border-radius: 5px;
@@ -65,7 +66,7 @@
             margin-bottom: 10px;
         }
         .event-date {
-            color: #007bff;
+            color: #0056b3;
             font-weight: 500;
             margin-bottom: 10px;
         }
@@ -76,7 +77,7 @@
         }
         .event-link {
             display: inline-block;
-            color: #007bff;
+            color: #0056b3;
             text-decoration: none;
             font-weight: 500;
         }
@@ -95,10 +96,21 @@
         .error {
             text-align: center;
             padding: 40px;
-            color: #dc3545;
+            color: #842029;
             background: #f8d7da;
             border-radius: 5px;
             margin: 20px 0;
+        }
+        .feed-button:focus-visible,
+        .event-link:focus-visible,
+        .attribution a:focus-visible {
+            outline: 3px solid #005fcc;
+            outline-offset: 3px;
+        }
+        @media (max-width: 480px) {
+            .events-grid {
+                grid-template-columns: minmax(0, 1fr);
+            }
         }
     </style>
 </head>
@@ -110,20 +122,28 @@
     </div>
 
     <div class="feed-selector">
-        <button class="feed-button active" onclick="loadFeed('today')">Today's Events</button>
-        <button class="feed-button" onclick="loadFeed('all')">All Events</button>
-        <button class="feed-button" onclick="loadFeed('major')">Major Events</button>
+        <button class="feed-button active" data-feed="today" aria-pressed="true">Today's Events</button>
+        <button class="feed-button" data-feed="all" aria-pressed="false">All Events</button>
+        <button class="feed-button" data-feed="major" aria-pressed="false">Major Events</button>
     </div>
 
-    <div id="loading" class="loading">Loading events...</div>
-    <div id="error" class="error" style="display: none;"></div>
-    <div id="events-container" class="events-grid"></div>
+    <div id="loading" class="loading" role="status" aria-live="polite">Loading events...</div>
+    <div id="error" class="error" role="alert" style="display: none;"></div>
+    <div id="events-container" class="events-grid" aria-live="polite"></div>
 
     <div class="attribution">
-        📍 Events data provided by <a href="https://www.turismo.comunecervia.it" target="_blank">Comune di Cervia Tourism Office</a><br>
+        Events data provided by <a href="https://www.turismo.comunecervia.it" target="_blank" rel="noopener noreferrer">Comune di Cervia Tourism Office</a><br>
         <small>Last updated: <span id="last-updated"></span></small>
     </div>
 
+    <footer class="site-footer">
+        <div class="footer-content">
+            <p>La Papessa · <a href="legal.html#privacy">Privacy, conditions and cookie information</a></p>
+        </div>
+    </footer>
+
+    <script src="js/config.js"></script>
+    <script src="js/main.js"></script>
     <script>
         // RSS Feed URLs
         const RSS_FEEDS = {
@@ -140,17 +160,17 @@
 
             // Update button states
             document.querySelectorAll('.feed-button').forEach(btn => {
-                btn.classList.remove('active');
+                const active = btn.dataset.feed === feedType;
+                btn.classList.toggle('active', active);
+                btn.setAttribute('aria-pressed', String(active));
             });
-            event.target.classList.add('active');
-
             // Show loading
             document.getElementById('loading').style.display = 'block';
             document.getElementById('error').style.display = 'none';
             document.getElementById('events-container').innerHTML = '';
 
             try {
-                const response = await fetch(`/api/rss/${feedType}`);
+                const response = await fetch(`${CALENDAR_CONFIG.API_URL}/api/rss/${feedType}`);
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
@@ -182,7 +202,7 @@
                     <div class="event-title">${escapeHtml(event.title)}</div>
                     <div class="event-date">${formatDate(event.date)}</div>
                     <div class="event-description">${escapeHtml(event.description)}</div>
-                    <a href="${event.link}" target="_blank" class="event-link">Learn More →</a>
+                    <a href="${event.link}" target="_blank" rel="noopener noreferrer" class="event-link">Learn More →</a>
                 </div>
             `).join('');
         }
@@ -208,6 +228,10 @@
             div.textContent = text;
             return div.innerHTML;
         }
+
+        document.querySelectorAll('.feed-button').forEach(button => {
+            button.addEventListener('click', () => loadFeed(button.dataset.feed));
+        });
 
         // Load initial feed
         document.addEventListener('DOMContentLoaded', () => {

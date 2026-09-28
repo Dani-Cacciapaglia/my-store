@@ -71,7 +71,7 @@ export async function serveStaticFile(filename, env) {
     });
 
   } catch (error) {
-    console.error(`Error serving static file ${filename}:`, error);
+    console.error(`Error serving static file ${filename}:`, error instanceof Error ? error.message : String(error));
     return new Response('Not Found', {
       status: 404,
       headers: getCorsHeaders(),
@@ -104,6 +104,41 @@ export async function serveIndexPage(env) {
     headers: {
       Location: pagesUrl.endsWith('/') ? pagesUrl : `${pagesUrl}/`,
       ...getCorsHeaders(),
+    },
+  });
+}
+
+export async function serveNotFound(env, request) {
+  let html = null;
+  if (env.STATIC_FILES) {
+    html = await env.STATIC_FILES.get('404.html');
+  }
+
+  if (!html) {
+    const pagesUrl = env.PAGES_URL || 'https://lapapessavacanze.com';
+    try {
+      const pageUrl = new URL('/404.html', pagesUrl);
+      const response = await fetch(pageUrl, { headers: { Accept: 'text/html' } });
+      if (response.ok) html = await response.text();
+    } catch (error) {
+      console.warn('Could not load the custom not-found page:', error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  if (!html) {
+    html = '<!doctype html><html lang="it"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pagina non trovata | La Papessa</title><main><h1>Pagina non trovata</h1><p>La pagina richiesta non esiste o e\' stata spostata.</p><a href="/">Torna alla home</a></main></html>';
+  }
+
+  const pagesOrigin = new URL(env.PAGES_URL || 'https://lapapessavacanze.com').origin;
+  const notFoundHeaders = getCorsHeaders(request);
+  notFoundHeaders['Content-Security-Policy'] = `default-src 'self'; style-src 'self' 'unsafe-inline' ${pagesOrigin}; img-src 'self' data: https:; script-src 'self' ${pagesOrigin}; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'`;
+
+  return new Response(html, {
+    status: 404,
+    headers: {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-store',
+      ...notFoundHeaders,
     },
   });
 }

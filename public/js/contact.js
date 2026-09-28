@@ -2,19 +2,33 @@ document.addEventListener("DOMContentLoaded", () => {
     
     const form = document.getElementById("contact-form");
     const status = document.getElementById("form-status");
+    const privacyAcknowledgment = document.getElementById("privacy-acknowledgment");
 
-    if (!form || !status) return;
+    if (!form || !status || !privacyAcknowledgment) return;
 
     form.addEventListener("submit", async (event) => {
         event.preventDefault();
 
-        status.textContent = "Sending message...";
+        if (!privacyAcknowledgment.checked) {
+            status.textContent = "Leggi e conferma l'informativa privacy prima di inviare.";
+            status.className = "form-status error";
+            privacyAcknowledgment.focus();
+            return;
+        }
+
+        status.textContent = "Invio in corso...";
         status.className = "form-status";
 
         const formData = new FormData(form);
+        for (const [fieldName, value] of Array.from(formData.entries())) {
+            if (typeof value === "string" && !value.trim()) {
+                formData.delete(fieldName);
+            }
+        }
 
         try {
-            const response = await fetch("https://api.web3forms.com/submit", {
+            const apiUrl = typeof CALENDAR_CONFIG !== "undefined" ? CALENDAR_CONFIG.API_URL : window.location.origin;
+            const response = await fetch(`${apiUrl}/api/contact`, {
                 method: "POST",
                 body: formData,
                 headers: {
@@ -32,35 +46,42 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             if (response.ok && result.success) {
-                status.textContent = "Message sent successfully ✓";
+                status.textContent = "Richiesta inviata. Grazie per averci contattato: ti risponderemo all'indirizzo email indicato, di norma entro 24 ore.";
                 status.classList.add("success");
                 form.reset();
+            } else if (response.status === 503) {
+                status.innerHTML = 'Invio dal sito temporaneamente non configurato. Puoi scriverci direttamente a <a href="mailto:papessavacanze@gmail.com">papessavacanze@gmail.com</a>.';
+                status.classList.add("error");
             } else {
                 status.textContent =
-                    result.message || "Failed to send message.";
+                    result.error || "Invio non riuscito. Riprova.";
                 status.classList.add("error");
             }
 
         } catch (error) {
             console.error("Contact form error:", error);
             status.textContent =
-                "Network or server error. Please try again later.";
+                "Errore di rete o del servizio. Riprova piu tardi.";
             status.classList.add("error");
         }
     });
-  const bookingData = JSON.parse(sessionStorage.getItem('bookingData'));
-
-  if (bookingData) {
-    document.getElementById('arrival').value = bookingData.checkin || '';
-    document.getElementById('departure').value = bookingData.checkout || '';
-    document.getElementById('apartment').value = bookingData.apartment || '';
-    document.getElementById('adults').value = bookingData.adults || 1;
-    document.getElementById('children').value = bookingData.children || 0;
-    document.getElementById('quotation').value = bookingData.quotation || '';
-
-    const messageField = document.getElementById('message');
-    if (messageField) {
-      messageField.value = `Buongiorno, vorrei richiedere disponibilità per ${bookingData.apartment} dal ${bookingData.checkin} al ${bookingData.checkout} per ${bookingData.adults} adulti e ${bookingData.children} bambini. Prezzo stimato ${bookingData.quotation}`;
+    try {
+        const storedBookingData = sessionStorage.getItem('bookingData');
+        if (storedBookingData) {
+            const bookingData = JSON.parse(storedBookingData);
+            document.getElementById('arrival').value = bookingData.checkin || '';
+            document.getElementById('departure').value = bookingData.checkout || '';
+            document.getElementById('apartment').value = bookingData.apartment || '';
+            document.getElementById('adults').value = bookingData.adults || 1;
+            document.getElementById('children').value = bookingData.children || 0;
+        }
+    } catch (error) {
+        console.warn('Could not restore the temporary booking selection.');
+    } finally {
+        try {
+            sessionStorage.removeItem('bookingData');
+        } catch (error) {
+            // Storage may be disabled by the browser.
+        }
     }
-  }
 });

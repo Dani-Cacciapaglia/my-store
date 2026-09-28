@@ -15,6 +15,28 @@ compatibility_flags = ["nodejs_compat"]
 # Schedule a daily RSS cache refresh
 triggers = { crons = ["0 3 * * *"] }
 
+# Per-client and outbound-provider rate limits.
+[[ratelimits]]
+name = "CLIENT_RATE_LIMITER"
+namespace_id = "786001"
+[ratelimits.simple]
+limit = 60
+period = 60
+
+[[ratelimits]]
+name = "CONTACT_RATE_LIMITER"
+namespace_id = "786002"
+[ratelimits.simple]
+limit = 3
+period = 60
+
+[[ratelimits]]
+name = "UPSTREAM_RATE_LIMITER"
+namespace_id = "786003"
+[ratelimits.simple]
+limit = 6
+period = 60
+
 # ============================================================================
 # ENVIRONMENT VARIABLES
 # ============================================================================
@@ -25,6 +47,27 @@ triggers = { crons = ["0 3 * * *"] }
 [env.development]
 # Local development environment configuration
 vars = { ENVIRONMENT = "development", PAGES_URL = "http://localhost:8788" }
+
+[[env.development.ratelimits]]
+name = "CLIENT_RATE_LIMITER"
+namespace_id = "786001"
+[env.development.ratelimits.simple]
+limit = 60
+period = 60
+
+[[env.development.ratelimits]]
+name = "CONTACT_RATE_LIMITER"
+namespace_id = "786002"
+[env.development.ratelimits.simple]
+limit = 3
+period = 60
+
+[[env.development.ratelimits]]
+name = "UPSTREAM_RATE_LIMITER"
+namespace_id = "786003"
+[env.development.ratelimits.simple]
+limit = 6
+period = 60
 
 # KV Namespace binding for token storage in development
 # Run locally: wrangler kv:namespace create "TOKENS" --preview
@@ -57,6 +100,27 @@ routes = [
   { pattern = "www.lapapessavacanze.com/auth/*", zone_name = "lapapessavacanze.com" },
   { pattern = "www.lapapessavacanze.com/api/*", zone_name = "lapapessavacanze.com" }
 ]
+
+[[env.production.ratelimits]]
+name = "CLIENT_RATE_LIMITER"
+namespace_id = "786001"
+[env.production.ratelimits.simple]
+limit = 60
+period = 60
+
+[[env.production.ratelimits]]
+name = "CONTACT_RATE_LIMITER"
+namespace_id = "786002"
+[env.production.ratelimits.simple]
+limit = 3
+period = 60
+
+[[env.production.ratelimits]]
+name = "UPSTREAM_RATE_LIMITER"
+namespace_id = "786003"
+[env.production.ratelimits.simple]
+limit = 6
+period = 60
 
 # KV Namespace binding for token storage in production
 # Run: wrangler kv:namespace create "TOKENS" (without --preview flag)
@@ -103,11 +167,13 @@ preview_id = "6ba94476cb574c158ba492e97c04aba5"
 #    - Purpose: OAuth callback endpoint for token exchange
 #    - Must match exactly in Google Cloud Console
 #
-# 4. GOOGLE_CALENDAR_ID
-#    - Default: "primary" (user's main calendar)
-#    - Alternative: specific calendar email (user@gmail.com)
-#    - Purpose: Which calendar to fetch events from
-#    - Find in Google Calendar → Settings → Calendar address
+# 4. GOOGLE_CALENDAR_ID_ULIVO / GOOGLE_CALENDAR_ID_SALINE
+#    - Calendar IDs for the individual apartment calendars
+#    - The IDs must be different and shared with the OAuth account
+#    - Availability is fetched together using the FreeBusy API
+#
+# 5. WEB3FORMS_ACCESS_KEY
+#    - Store as a secret, not as a public HTML value
 
 # ============================================================================
 # HOW TO SET ENVIRONMENT VARIABLES

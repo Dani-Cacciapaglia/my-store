@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -43,18 +43,12 @@
             <h2>Mandaci un messaggio.</h2>
 
             <form id="contact-form" class="contact-form">
-                <!-- Web3Forms required fields -->
-                <input type="hidden" name="access_key" value="285777fd-b011-4a47-89e7-02ea85887e53">
-                <input type="hidden" name="from_name" value="La Papessa website">
-                <input type="hidden" name="subject" value="New contact form message">
-
                 <div class="form-group">
-                    <label for="name">Nome *</label>
+                    <label for="name">Nome (facoltativo)</label>
                     <input
                         type="text"
                         id="name"
                         name="name"
-                        required
                         placeholder="Il tuo nome">
                 </div>
 
@@ -97,8 +91,7 @@
                         id="adults"
                         name="adults"
                         min="1"
-                        max="5"
-                        value="2">
+                        max="5">
                 </div>
 
                 <div class="form-group">
@@ -108,8 +101,7 @@
                         id="children"
                         name="children"
                         min="0"
-                        max="4"
-                        value="0">
+                        max="4">
                 </div>
                 <div class="form-group">
                     <label for="message">Messaggio *</label>
@@ -121,11 +113,17 @@
                         placeholder="Facci sapere come possiamo aiutarti..."></textarea>
                 </div>
 
-<input type="hidden" id="quotation" name="quotation">
+                <div class="form-group consent-group">
+                    <label for="privacy-acknowledgment">
+                        <input type="checkbox" id="privacy-acknowledgment" required aria-describedby="privacy-acknowledgment-help">
+                        <span>Ho letto l'<a href="legal.html#privacy">informativa privacy</a> e so che i dati inseriti saranno usati per gestire questa richiesta.</span>
+                    </label>
+                    <p id="privacy-acknowledgment-help">L'invio della richiesta non comporta iscrizione a comunicazioni promozionali.</p>
+                </div>
 
                 <button type="submit" class="submit-btn">Invia Messaggio</button>
 
-                <div id="form-status" class="form-status"></div>
+                <div id="form-status" class="form-status" role="status" aria-live="polite"></div>
             </form>
         </div>
 
@@ -171,10 +169,10 @@
                 <h3>Follow Us</h3>
                 <div class="social-links-vertical">
                     <a href="#" target="_blank">
-                        <svg viewBox="0 0 24 24" class="social-icon-small">
+                        <span class="social-icon-small" aria-hidden="true">
                             <path d="M11.91,2.27c-2.65,0-3,0-4,.06a7.26,7.26,0,0,0-2.36.45A4.94,4.94,0,0,0,2.69,5.63,7,7,0,0,0,2.24,8c-.05,1-.06,1.37-.06,4s0,3,.06,4a7,7,0,0,0,.45,2.36,4.77,4.77,0,0,0,1.12,1.72,4.67,4.67,0,0,0,1.72,1.13,7.26,7.26,0,0,0,2.36.45c1,0,1.37.06,4,.06s3,0,4-.06a7.26,7.26,0,0,0,2.36-.45A4.67,4.67,0,0,0,20,20.09a4.77,4.77,0,0,0,1.12-1.72A7,7,0,0,0,21.57,16c.05-1,.06-1.37.06-4s0-3-.06-4a7,7,0,0,0-.45-2.36,4.94,4.94,0,0,0-2.84-2.85,7.27,7.27,0,0,0-2.37-.45c-1-.05-1.36-.06-4-.06Z"
                                   fill="currentColor"/>
-                        </svg>
+                        </span>
                         Instagram
                     </a>
                 </div>
@@ -190,10 +188,10 @@
                 <div class="footer-section">
                     <div class="social-links">
                         <a href="#" target="_blank" title="Instagram">
-                            <svg viewBox="0 0 24 24" class="social-icon">
+                            <span class="social-icon" aria-hidden="true">
                                 <path d="M11.91,2.27c-2.65,0-3,0-4,.06a7.26,7.26,0,0,0-2.36.45A4.94,4.94,0,0,0,2.69,5.63..."
                                       fill="currentColor"/>
-                            </svg>
+                            </span>
                             <span>Instagram</span>
                         </a>
                     </div>
@@ -213,7 +211,8 @@
         </div>
     </footer>
 
+    <script src="js/config.js"></script>
     <script src="js/main.js"></script>
-    <script src="js/contact.js"></script>
+    <script src="js/contact.js?v=20260928-24h-confirmation"></script>
 </body>
 </html>

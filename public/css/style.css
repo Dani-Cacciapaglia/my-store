@@ -19,6 +19,16 @@ a {
     color: inherit;
 }
 
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+    outline: 3px solid #005fcc;
+    outline-offset: 3px;
+}
+
 ul {
     list-style: none;
 }
@@ -32,7 +42,7 @@ img {
 :root {
     --background: #fff;
     --text-color: #333;
-    --subtext-color: #666;
+    --subtext-color: #595959;
     --border-color: #e0e0e0;
     --surface-color: #fff;
     --surface-muted: #f0f0f0;
@@ -192,7 +202,7 @@ img {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #999;
+    color: #595959;
     font-size: 0.9rem;
     text-align: center;
     padding: 2rem;
@@ -497,6 +507,218 @@ img {
     }
 }
 
+.legal-content {
+    max-width: 860px;
+    margin: 120px auto 4rem;
+    padding: 0 1.5rem;
+}
+
+.not-found-content {
+    display: flex;
+    min-height: 68vh;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 140px 1.5rem 4rem;
+}
+
+.not-found-code {
+    color: #17633a;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.not-found-content h1 {
+    max-width: 18ch;
+    margin: 0.5rem 0 1rem;
+    font-size: 2.5rem;
+    line-height: 1.15;
+}
+
+.not-found-content > p:not(.not-found-code) {
+    max-width: 55ch;
+    color: #404040;
+}
+
+.not-found-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+}
+
+.not-found-link {
+    color: #0056a6;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+}
+
+.legal-content h1 {
+    margin-bottom: 0.4rem;
+    font-size: 2.4rem;
+}
+
+.legal-content section {
+    padding: 2rem 0;
+    border-top: 1px solid var(--border-color);
+    scroll-margin-top: 100px;
+}
+
+.legal-content h2 {
+    margin-bottom: 1rem;
+    font-size: 1.65rem;
+}
+
+.legal-content h3 {
+    margin: 1.5rem 0 0.5rem;
+    font-size: 1.15rem;
+}
+
+.legal-content p,
+.legal-content li {
+    margin-bottom: 0.8rem;
+    color: #404040;
+}
+
+.legal-content ul {
+    list-style: disc;
+    padding-left: 1.4rem;
+}
+
+.legal-content a {
+    color: #0056a6;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+}
+
+.legal-updated,
+.legal-small {
+    color: #595959;
+    font-size: 0.92rem;
+}
+
+.legal-action {
+    border-left: 4px solid #8a4b00;
+    padding: 0.8rem 1rem;
+    background: #fff8e8;
+}
+
+.legal-footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.9rem;
+}
+
+.legal-footer-links a,
+.cookie-preferences-link {
+    color: #333;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+}
+
+.cookie-preferences-link {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
+}
+
+.cookie-banner {
+    position: fixed;
+    z-index: 1200;
+    right: 1rem;
+    bottom: 1rem;
+    left: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1rem 1.25rem;
+    color: #222;
+    background: #fff;
+    border: 1px solid #777;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
+}
+
+.cookie-banner[hidden] {
+    display: none;
+}
+
+.cookie-banner p {
+    margin-top: 0.25rem;
+    color: #404040;
+    font-size: 0.92rem;
+}
+
+.cookie-banner a {
+    color: #0056a6;
+    text-decoration: underline;
+}
+
+.cookie-banner-actions {
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.cookie-banner-actions button,
+.cookie-settings-button {
+    min-height: 44px;
+    padding: 0.6rem 0.9rem;
+    border: 2px solid #333;
+    border-radius: var(--radius-sm);
+    color: #222;
+    background: #fff;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.cookie-banner-actions button:hover,
+.cookie-settings-button:hover {
+    color: #fff;
+    background: #333;
+}
+
+@media (max-width: 700px) {
+    .cookie-banner {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .cookie-banner-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .legal-footer-links {
+        justify-content: center;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
 /* ============================================
    RESPONSIVE DESIGN - MOBILE
    ============================================ */
@@ -516,6 +738,7 @@ img {
         backdrop-filter: blur(10px);
         max-height: 0;
         overflow: hidden;
+        visibility: hidden;
         transition: max-height 0.3s ease;
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
     }
@@ -523,6 +746,7 @@ img {
     /* Show navigation when active */
     .main-nav.active {
         max-height: 400px;
+        visibility: visible;
     }
     
     /* Stack navigation vertically */
@@ -740,8 +964,7 @@ img {
 
 .form-group input:focus,
 .form-group textarea:focus {
-    outline: none;
-    border-color: #999;
+    border-color: #005fcc;
 }
 
 .form-group textarea {
@@ -804,6 +1027,40 @@ img {
     color: var(--text-color);
 }
 
+.consent-group > label {
+    display: grid;
+    grid-template-columns: 1.1rem minmax(0, 1fr);
+    align-items: start;
+    gap: 0.65rem;
+    line-height: 1.5;
+    cursor: pointer;
+}
+
+.consent-group input[type="checkbox"] {
+    appearance: auto;
+    width: 1rem;
+    height: 1rem;
+    margin: 0.2rem 0 0;
+    padding: 0;
+    border: initial;
+    border-radius: 0;
+    box-shadow: none;
+    accent-color: #174f46;
+    cursor: pointer;
+}
+
+.consent-group a {
+    color: #0056a6;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+}
+
+.consent-group p {
+    margin-left: 1.75rem;
+    color: #595959;
+    font-size: 0.9rem;
+}
+
 .contact-info-card p {
     font-size: 0.98rem;
     line-height: 1.6;
@@ -821,7 +1078,7 @@ img {
 
 .info-description {
     font-size: 0.9rem !important;
-    color: #999 !important;
+    color: #595959 !important;
     margin-top: 0.5rem;
 }
 
@@ -890,7 +1147,7 @@ img {
 
 .contact-header p {
     font-size: 1.1rem;
-    color: #666;
+    color: #595959;
 }
 
 .contact-wrapper {

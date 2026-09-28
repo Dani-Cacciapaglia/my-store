@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -63,7 +63,7 @@
                     </div>
                     <div class="booking-calendar-grids">
                         <div class="calendar-grid">
-                            <table class="calendar-table">
+                            <table class="calendar-table" aria-label="Calendario del primo mese">
                                 <thead>
                                     <tr>
                                         <th>Dom</th><th>Lun</th><th>Mar</th><th>Mer</th><th>Gio</th><th>Ven</th><th>Sab</th>
@@ -73,7 +73,7 @@
                             </table>
                         </div>
                         <div class="calendar-grid">
-                            <table class="calendar-table">
+                            <table class="calendar-table" aria-label="Calendario del mese successivo">
                                 <thead>
                                     <tr>
                                         <th>Dom</th><th>Lun</th><th>Mar</th><th>Mer</th><th>Gio</th><th>Ven</th><th>Sab</th>
@@ -86,23 +86,19 @@
 
                     <!-- Legend — same visual language as the old view-only calendar -->
                     <div class="calendar-legend">
-                        <div class="legend-item">
-                            <span class="legend-box available"></span>
-                            <span>Disponibile</span>
-                        </div>
-                        <div class="legend-item">
-                            <span class="legend-box unavailable"></span>
-                            <span>Non Disponibile</span>
-                        </div>
-                        <div class="legend-item">
-                            <span class="legend-box selected"></span>
-                            <span>Selezionato</span>
-                        </div>
+                        <div class="legend-item"><span class="calendar-day-indicator indicator-ulivo"></span><span>Ulivo disponibile</span></div>
+                        <div class="legend-item"><span class="calendar-day-indicator indicator-ulivo is-occupied"></span><span>Ulivo occupato</span></div>
+                        <div class="legend-item"><span class="calendar-day-indicator indicator-saline"></span><span>Saline disponibile</span></div>
+                        <div class="legend-item"><span class="calendar-day-indicator indicator-saline is-occupied"></span><span>Saline occupato</span></div>
+                        <div class="legend-item"><span class="calendar-day-indicator is-unknown"></span><span>Disponibilit&agrave; non verificabile</span></div>
+                        <div class="legend-item"><span class="legend-box selected"></span><span>Date selezionate</span></div>
                     </div>
 
-                    <p class="date-warning" id="date-warning"></p>
+                    <p class="availability-source" id="availability-source" role="status" aria-live="polite"></p>
 
-                    <div class="booking-dates-summary">
+                    <p class="date-warning" id="date-warning" role="status" aria-live="polite"></p>
+
+                    <div class="booking-dates-summary" aria-live="polite">
                         <div><span>Check-in:</span> <strong id="checkin-display">—</strong></div>
                         <div><span>Check-out:</span> <strong id="checkout-display">—</strong></div>
                         <button type="button" id="reset-dates" class="btn-secondary">Reimposta date</button>
@@ -139,28 +135,28 @@
                         <div class="guest-selector">
                             <label for="adults-count">Adulti</label>
                             <div class="stepper">
-                                <button type="button" class="stepper-btn" data-target="adults-count" data-step="-1">−</button>
+                                <button type="button" class="stepper-btn" data-target="adults-count" data-step="-1" aria-label="Diminuisci adulti">−</button>
                                 <input type="number" id="adults-count" min="1" max="5" value="2" readonly>
-                                <button type="button" class="stepper-btn" data-target="adults-count" data-step="1">+</button>
+                                <button type="button" class="stepper-btn" data-target="adults-count" data-step="1" aria-label="Aumenta adulti">+</button>
                             </div>
                         </div>
                         <div class="guest-selector">
                             <label for="children-count">Bambini <span class="guest-note">(fino a 12 anni)</span></label>
                             <div class="stepper">
-                                <button type="button" class="stepper-btn" data-target="children-count" data-step="-1">−</button>
+                                <button type="button" class="stepper-btn" data-target="children-count" data-step="-1" aria-label="Diminuisci bambini">−</button>
                                 <input type="number" id="children-count" min="0" max="4" value="0" readonly>
-                                <button type="button" class="stepper-btn" data-target="children-count" data-step="1">+</button>
+                                <button type="button" class="stepper-btn" data-target="children-count" data-step="1" aria-label="Aumenta bambini">+</button>
                             </div>
                         </div>
                     </div>
-                    <p class="guest-warning" id="guest-warning"></p>
+                    <p class="guest-warning" id="guest-warning" aria-live="polite"></p>
                 </div>
             </div>
 
             <!-- Summary -->
             <div class="booking-summary" id="booking-summary">
                 <h4>Riepilogo preventivo</h4>
-                <div id="summary-content" class="summary-content">
+                <div id="summary-content" class="summary-content" aria-live="polite">
                     <p class="summary-placeholder">Seleziona le date, la sistemazione e gli ospiti per vedere una stima del prezzo.</p>
                 </div>
                 <div class="summary-total" id="summary-total" style="display:none;">

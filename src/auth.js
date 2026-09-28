@@ -72,7 +72,7 @@ export async function handleGoogleAuth(request, env) {
     });
 
   } catch (error) {
-    console.error('Auth URL generation failed:', error);
+    console.error('Auth URL generation failed:', error instanceof Error ? error.message : String(error));
     return new Response(
       JSON.stringify({ error: 'OAuth configuration error' }),
       {
@@ -173,7 +173,7 @@ export async function handleGoogleCallback(request, env) {
     );
 
   } catch (error) {
-    console.error('Token exchange failed:', error);
+    console.error('Token exchange failed:', error instanceof Error ? error.message : String(error));
     return new Response(
       getAuthErrorHtml('Token exchange failed. Please check your OAuth configuration and try again.'),
       {

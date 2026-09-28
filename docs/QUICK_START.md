@@ -25,12 +25,20 @@ Required values:
 GOOGLE_CLIENT_ID=your_client_id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your_client_secret
 GOOGLE_REDIRECT_URL=http://localhost:8787/auth/google/callback
-GOOGLE_CALENDAR_ID=primary
+GOOGLE_CALENDAR_ID_ULIVO=calendar_id_for_ulivo
+GOOGLE_CALENDAR_ID_SALINE=calendar_id_for_saline
+WEB3FORMS_ACCESS_KEY=rotated_web3forms_key
 ```
 
 ## 3. Run locally
 
-Use the Pages development server:
+Start the Worker and Pages preview in two terminals:
+
+Before starting, add both distinct apartment calendar IDs and the rotated Web3Forms access key to `.env`.
+
+```bash
+npm run dev -- --env development --port 8787
+```
 
 ```bash
 npm run pages:dev
@@ -56,7 +64,8 @@ This runs the Pages publish step and the Worker deployment step in sequence.
 ## Security note
 
 - Never commit `.env`, OAuth tokens, or Cloudflare credentials.
-- The Worker restricts CORS, validates OAuth `state`, and returns availability without calendar titles.
+- The Worker restricts CORS, validates OAuth `state`, and returns separate per-apartment availability without calendar titles.
+- Rotate the old Web3Forms key because it was previously present in public HTML; keep the replacement key only in `.env` and Worker secrets.
 - Set `GOOGLE_CLIENT_SECRET` and OAuth tokens as Cloudflare secrets/KV values, not browser variables.
 - Run `npm audit --audit-level=high` before deployment. The current lockfile reports zero vulnerabilities, including development dependencies.
 - The live site exposes the OAuth client ID and normal public booking/contact content. It must never expose client secrets, access tokens, refresh tokens, calendar titles, or internal error messages.

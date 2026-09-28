@@ -1,6 +1,6 @@
 # Configurazione Google Calendar
 
-Il sito usa Google Calendar in sola lettura per mostrare le date non disponibili.
+Il sito usa Google Calendar in sola lettura per mostrare separatamente le date occupate di Appartamento Ulivo e Appartamento Saline. Una richiesta FreeBusy interroga entrambi i calendari senza leggere o esporre titoli e descrizioni degli eventi.
 
 ## Valori production
 
@@ -80,7 +80,9 @@ Non usare `my-store-production`, che e' un servizio diverso.
    | `GOOGLE_CLIENT_ID` | Client ID del client Web Google | Variable |
    | `GOOGLE_CLIENT_SECRET` | Client secret dello stesso client | Secret |
    | `GOOGLE_REDIRECT_URL` | `https://lapapessavacanze.com/auth/google/callback` | Variable |
-   | `GOOGLE_CALENDAR_ID` | `primary` o l'ID del calendario | Variable |
+   | `GOOGLE_CALENDAR_ID_ULIVO` | ID calendario dedicato ad Appartamento Ulivo | Variable |
+   | `GOOGLE_CALENDAR_ID_SALINE` | ID calendario dedicato ad Appartamento Saline | Variable |
+   | `WEB3FORMS_ACCESS_KEY` | Access key Web3Forms ruotata dopo averla rimossa dal codice pubblico | Secret |
 
 6. Salva le variabili.
 
@@ -126,8 +128,56 @@ OAuth security requirements:
 
 - The Worker creates a one-time OAuth `state` value and stores it in KV for ten minutes.
 - The callback stores tokens in the private `TOKENS` KV namespace and never renders or logs them.
-- The public API returns unavailable dates and anonymous busy ranges; event titles are not public.
+- Each apartment has its own calendar ID; the public API returns only the two sets of occupied local dates.
+- The public contact form sends submissions to the Worker proxy, never directly to Web3Forms.
 - CORS is restricted to the production site and local development origins.
+
+## Calendari per appartamento
+
+1. Crea o individua un calendario Google distinto per ciascun alloggio.
+2. Condividi entrambi con l'account Google autorizzato per questa integrazione, almeno in sola lettura.
+3. Copia l'ID del calendario Ulivo in `GOOGLE_CALENDAR_ID_ULIVO` e quello Saline in `GOOGLE_CALENDAR_ID_SALINE`.
+4. Configura entrambi come variabili runtime del Worker production e, per i test, in `.env` locale. I due ID devono essere distinti.
+5. Le prenotazioni vanno inserite nel calendario corretto. L'API `freeBusy.query` restituisce entrambe le disponibilità in una sola chiamata.
+
+### Modalità condivisa temporanea
+
+Se per un breve periodo hai un solo ID calendario, configura lo stesso ID per Ulivo e Saline e abilita il secret Worker `ALLOW_SHARED_APARTMENT_CALENDAR=true`. L'interfaccia avviserà che i due alloggi mostrano le stesse date e il Worker interrogherà quell'ID una volta sola. Per tornare alla modalità corretta, imposta due ID distinti e rimuovi il flag:
+
+```bash
+npx wrangler secret delete ALLOW_SHARED_APARTMENT_CALENDAR --env production
+```
+
+Non lasciare la modalità condivisa quando i calendari separati sono pronti: non distingue le prenotazioni tra alloggi.
+
+## Riautorizzare OAuth (`invalid_grant`)
+
+Se `/api/availability` restituisce `Failed to fetch availability` e nei log Worker appare `invalid_grant`, autorizza nuovamente l'account Google che ha accesso ai calendari:
+
+1. Apri `https://lapapessavacanze.com/auth/google`.
+2. Accedi con l'account proprietario/condiviso dei calendari e approva l'accesso in sola lettura.
+3. Il callback salva i nuovi token nel KV privato `TOKENS`; il Worker usa questi token aggiornati prima di quelli legacy presenti come variabili d'ambiente.
+4. Ricarica la pagina disponibilit&agrave; e verifica che `/api/availability` risponda con `availabilityByApartment`.
+
+Non copiare o inviare access token e refresh token in chat, HTML o file versionati.
+
+Per i calendari nel progetto locale, aggiungi i due valori al file `.env` non versionato. Per production, aggiungili da Cloudflare Dashboard > Worker `my-store` > Settings > Variables and Secrets. Il Worker usa fallback prudenziale e rende le date non selezionabili quando i calendari non sono configurati o non rispondono.
+
+## Limiti di traffico e spesa
+
+Il Worker applica 60 richieste API per IP al minuto, 3 invii contatto per IP al minuto e un limiter outbound di 6 chiamate al minuto per chiave. Google Availability e i feed RSS sono serviti da cache edge; una sola chiamata Google copre i due alloggi. Questi limiter Cloudflare sono volutamente rapidi e distribuiti per data center: non sono un contatore contabile globale e possono superare il limite durante traffico simultaneo distribuito.
+
+Per il tetto effettivo alla spesa Google, apri Google Cloud Console > APIs & Services > Google Calendar API > Quotas e imposta un limite giornaliero basso e adatto al traffico previsto (per esempio 1.000 richieste/giorno). Verifica che sia applicato al progetto OAuth usato dal Worker. Google indica che l'uso standard non ha costo aggiuntivo entro la soglia giornaliera documentata; una quota esplicita ridotta protegge anche dal traffico anomalo.
+
+Il piano Workers Free di Cloudflare ha un limite di 100.000 richieste Worker al giorno. Se l'account usa un piano a consumo, imposta anche i limiti di spesa dal pannello Billing Cloudflare: il codice non pu&ograve; imporre un tetto di fatturazione globale. I Rate Limiting bindings Cloudflare sono locali al data center e approssimativi, quindi non garantiscono da soli un massimo globale di richieste.
+
+Imposta inoltre un budget/avviso e il limite di invii previsto dal piano Web3Forms. La chiave precedentemente inclusa nel markup pubblico va ruotata e salvata come secret `WEB3FORMS_ACCESS_KEY`; il form resta disabilitato sul Worker finch&eacute; il secret non &egrave; configurato. Per production:
+
+```bash
+npx wrangler secret put WEB3FORMS_ACCESS_KEY --env production
+```
+
+Per il test locale aggiungi `WEB3FORMS_ACCESS_KEY=...` al `.env` ignorato da Git. Il limite Cloudflare protegge gli invii ordinari; il limite assoluto di costo per Web3Forms dipende dai limiti configurabili sul relativo account.
 
 ## 6. Verifica
 
@@ -205,13 +255,15 @@ Le variabili devono essere configurate nel Worker `my-store/production`, non nel
 
 ## ID del calendario
 
-Per il calendario principale usa:
+Configura due calendari distinti con una variabile ciascuno:
 
 ```text
-GOOGLE_CALENDAR_ID=primary
+GOOGLE_CALENDAR_ID_ULIVO=calendar-id-ulivo
+GOOGLE_CALENDAR_ID_SALINE=calendar-id-saline
+WEB3FORMS_ACCESS_KEY=rotated-web3forms-key
 ```
 
-Per un calendario diverso, apri Google Calendar > menu del calendario > **Impostazioni e condivisione** > **Integra calendario** e copia l'**ID calendario**.
+Apri Google Calendar > menu del calendario > **Impostazioni e condivisione** > **Integra calendario** e copia l'**ID calendario** di ciascun alloggio. Condividi i due calendari con l'account autorizzato dall'OAuth del Worker. Non riutilizzare lo stesso ID: il Worker rifiuta ID uguali.
 
 ## Sicurezza
 
